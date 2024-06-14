@@ -1,0 +1,43 @@
+/* 전체 컨테이너 구성 > flexContainer 안에 innerDiv로 구성 */
+.flexContainer{
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+.innerDiv{
+    position: relative;
+    margin: 10px 20px;
+}
+/* Box */
+.delBtn{
+    background-color: crimson;
+    color: white;
+    border: 0;
+    margin-left: 10px;
+}
+/* Caption */
+/* selected segment */
+.select{
+    text-decoration: line-through;
+    color: gray;
+}
+/* textarea */
+.fixedTextarea {
+    resize: none; /* 크기 조정 비활성화 */
+    padding: 10px;
+}
+.longCaption{
+    width: 100%;
+    min-width: 400px;
+    max-width: 700px;
+    height: 100px;
+}
+.captionContainer{
+    width: 100%;
+}
+.captionSet{
+    border: 1px solid black;
+    padding: 10PX;
+    width: calc(100%-20px);
+}
+
