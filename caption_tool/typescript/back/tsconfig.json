@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    "target": "es6",
+    "outDir": "./dist"
+  },
+    "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+}
