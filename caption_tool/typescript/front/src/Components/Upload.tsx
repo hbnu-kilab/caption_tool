@@ -8,6 +8,7 @@ import { SegmentClick } from './SegmentHandler'; // 세그먼트 클릭 처리 �
 
 import ReactDOM from 'react-dom';
 import { useParams } from 'react-router-dom'; //src
+import axios from 'axios';
 
 // 드래그 박스 객체를 만들기 위한 인터페이스
 interface Box {
@@ -35,45 +36,50 @@ const Upload: React.FC = () => {
 
   const imageRef = useRef<HTMLImageElement>(null); // 이미지 엘리먼트에 접근하기 위한 useRef
   const { src } = useParams(); // URL 파라미터로부터 src 값 가져오기
-  const [imageSrc, setImageSrc] = useState<number>(Number(src)); // 이미지 src 값
+  const [imageId, setImageId] = useState<number>(Number(src)); // 이미지 src 값
+  const [imageSrc, setImageSrc] = useState<String>('');
 
-  // JSON 데이터 가져오기
-  useEffect(() => {
-    fetch('/json/coco_dev_etri_1sample.json')
-      .then(response => response.json())
-      .then(data => {
-        const cocoCaptions: string[] = data['2415093'].origin_data.coco.coco_captions; // 장문 캡션 세그먼트 목록
-        let longCaptionString: string = cocoCaptions.join('\n'); // 장문 캡션 문자열
-        const boundingBoxes = data['2415093'].etri_version.groups // 바운딩 박스 그룹 arr
+ // JSON 데이터 가져오기
+ useEffect(() => {
+  fetch(`/json/splitJson/split_json_${String(imageId)}.json`)
+    .then(response => response.json())
+    .then(data => {
+      
+      const key: string = String(Object.keys(data)[0])
+      const cocoCaptions: string[] = data[key].image_data.coco_caption; // 장문 캡션 세그먼트 목록
+      let longCaptionString: string = cocoCaptions.join('\n'); // 장문 캡션 문자열
+      // const boundingBoxes = data.etri_version.groups // 바운딩 박스 그룹 arr
+      setImageSrc(data[key].image_data.url)
 
-        // selectedSegment 배열 false로 초기화
-        if (selectedSegment.length < cocoCaptions.length) {
-          const newSelectedSegment = Array(cocoCaptions.length).fill(false);
-          setSelectedSegment(newSelectedSegment);
-        }
+      // selectedSegment 배열 false로 초기화
+      if (selectedSegment.length < cocoCaptions.length) {
+        const newSelectedSegment = Array(cocoCaptions.length).fill(false);
+        setSelectedSegment(newSelectedSegment);
+      }
 
-        // 장문 캡션 텍스트 영역 업데이트
-        const textarea = document.getElementById('longcaption') as HTMLInputElement;
-        if (textarea) {
-          textarea.value = longCaptionString;
-        }
+      // 장문 캡션 텍스트 영역 업데이트
+      const textarea = document.getElementById('longcaption') as HTMLInputElement;
+      if (textarea) {
+        textarea.value = longCaptionString;
+      }
 
-        // 세그먼트 캡션 목록 업데이트
-        const captionList = cocoCaptions.map((caption, index) => (
-          <li
-            key={index}
-            onClick={() => {if (!selectedSegment[index]) {
-              SegmentClick(caption, index, setBoxes, setSelectedSegment);
-            }}}
-            className={`${selectedSegment[index] ? styles.select : ''}`}
-          >
-            {caption}
-          </li>
-        ));
-        ReactDOM.render(<ul>{captionList}</ul>, document.getElementById('captionList'));
-      })
-      .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
-  }, [selectedSegment]); // (의존성 배열, 배열이 재설정 되면 rerendering)selectedSegment가 변경될 때마다 useEffect 실행
+      // 세그먼트 캡션 목록 업데이트
+      const captionList = cocoCaptions.map((caption, index) => (
+        <li
+          key={index}
+          onClick={() => {if (!selectedSegment[index]) {
+            SegmentClick(caption, index, setBoxes, setSelectedSegment);
+          }}}
+          className={`${selectedSegment[index] ? styles.select : ''}`}
+        >
+          {caption}
+        </li>
+      ));
+      ReactDOM.render(<ul>{captionList}</ul>, document.getElementById('captionList'));
+    })
+    .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
+}, [selectedSegment]); // (의존성 배열, 배열이 재설정 되면 rerendering)selectedSegment가 변경될 때마다 useEffect 실행
+
 
   // 이미지 클릭시 바운딩 박스 생성
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -177,7 +183,7 @@ const Upload: React.FC = () => {
 
   // 이미지 변경 함수
   const clickSubmit = () => {
-    setImageSrc(imageSrc + 1);
+    setImageId(imageId + 1);
     
   };
 
@@ -191,7 +197,7 @@ const Upload: React.FC = () => {
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
         >
-          <img ref={imageRef} src={`https://cs.stanford.edu/people/rak248/VG_100K_2/${String(imageSrc)}.jpg`} alt="Upload" />
+          <img ref={imageRef} src={`${String(imageSrc)}`} alt="Upload" />
           {newBox && (
             <div
               className="caption-box"
