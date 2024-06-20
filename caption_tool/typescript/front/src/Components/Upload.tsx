@@ -150,7 +150,7 @@ const Upload: React.FC = () => {
       console.log(box.style.display)
       if (box.style.display === 'none'){
         box.style.display = 'inline'
-        displayBtn.style.backgroundColor = 'rgb(142, 154, 184)'
+        displayBtn.style.backgroundColor = 'rgb(29, 31, 37)'
         displayBtn.innerHTML = "ON"
       }
       else {
