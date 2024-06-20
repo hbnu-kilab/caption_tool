@@ -62,7 +62,7 @@ const Upload: React.FC = () => {
   useEffect(() => {
     console.log(1)
     // /json/splitJson/split_json_${imageId}.json에서 값을 가져옴
-    fetch(`/json/splitJson/split_json_${imageId}.json`)
+    fetch(`/json/splitJson/split_json_${imageId}.json`) 
       .then(response => response.json()) 
       .then(data => { // 데이터를 받아오면
         const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
@@ -128,16 +128,16 @@ const Upload: React.FC = () => {
   }, [selectedSegment]);
 
   // =============================================================================================
-  // 헤더에 있는 버튼
+  // 헤더에 있는 버튼, 이전이나 다음 페이지로 이동 시 현재까지 변경된 사항들이 저장되도록 하기
   // prev 버튼 실행시 적용되는 함수
   const prevPage = () =>{
     if (imageId !== "1") window.location.href = `http://localhost:3000/upload/${Number(imageId)-1}`
 
-    // 현재까지 변경된 사항들이 저장되도록 하기
+    
   }
   // next 버튼 실행시 적용되는 함수
   const nextPage = () =>{
-    window.location.href = `http://localhost:3000/upload/${Number(imageId)+1}`
+    if (imageId !== "2186") window.location.href = `http://localhost:3000/upload/${Number(imageId)+1}`
 
     // 현재까지 변경된 사항들이 저장되도록 하기
   }
@@ -185,11 +185,13 @@ const Upload: React.FC = () => {
   // return에서 html 렌더링
   return (
     <div className={`${styles.flexContainer}`}>
+      {/* 헤더(< 이전 / 다음 > 페이지로 이동) */}
+      {/* 현정이는 여기를 신경써주면 될 것 같아! */}
       <div className={`${styles.nav}`}>
         <button className={`${imageId !== "1"? styles.button : styles.deadButton}`} onClick={prevPage}>◀ prev</button>
-        <button className={`${styles.button}`} onClick={nextPage}>next ▶</button>
-        
+        <button className={`${imageId !== "2186"? styles.button : styles.deadButton}`} onClick={nextPage}>next ▶</button>
       </div>
+      {/* 바디 박스 */}
       <div className={`${styles.innerDiv}`}>
         <h1>이미지 캡션 데이터 구축</h1>
         {/* 바운딩 박스 */}
