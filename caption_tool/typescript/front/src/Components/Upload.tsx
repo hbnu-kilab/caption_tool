@@ -300,7 +300,7 @@ const Upload: React.FC = () => {
                     <td>
                       <span>{boxIndex}</span>
                     </td>
-                    <td className={`${styles.hovering}`}> 
+                    <td className={`${styles.hovering} ${box.entity.length>0? "":styles.fontRed}`}> 
                       <span id={`entity${boxIndex}`}
                       onClick={() => handleEntityDisplay(boxIndex, box.entity[0])}>{box.entity.length>0?`${box.entity[0]}   ▼`:'none   ▼'}</span>
                       <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{/* 단순 띄어쓰기, 의미 없음 */}
