@@ -231,7 +231,7 @@ const Upload: React.FC = () => {
             )
           }
         >
-          <img ref={imageRef} src={`${String(imageUrl)}`} alt="Upload" />
+          <img ref={imageRef} src={`${String(imageUrl)}`} className={`${styles.noSelect}`} alt="Upload" />
           {newBox && (
             <div
               className="caption-box"

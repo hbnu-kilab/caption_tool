@@ -22,6 +22,11 @@ h3 > b {
 .hovering:hover{
     font-weight: 700;
 }
+/* 공통 적용 - 선택 못하게 하는 효과 */
+.noSelect {
+    user-select: none;
+    -webkit-user-drag: none;
+  }
 /* ====================================================== */
 .nav{
     /* 헤더 */
