@@ -50,6 +50,7 @@ const Upload: React.FC = () => {
   const [resizeIndex, setResizeIndex] = useState<number | null>(null); // 현재 리사이징 되고 있는 박스의 인덱스(boxes array 기준)
 
   const [selectedSegment, setSelectedSegment] = useState<boolean[]>([]); // caption으로 추가된 segment에 취소선 css를 부여하게 하기 위한 상태변수, 랜더링의 기준
+  const [longCaption, setlongCaption] = useState<string>('');
 
   // 리액트에선 html 요소에 직접 접근을 막고, useRef나 react dom을 사용하여 접근하도록 함 
   const imageRef = useRef<HTMLImageElement>(null); // 이미지 요소에 접근하도록 하는 
@@ -67,6 +68,8 @@ const Upload: React.FC = () => {
       .then(data => { // 데이터를 받아오면
         const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
         setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
+        let longCaptionString:string = data[key].image_data.localizednarratives[0].caption
+        setlongCaption(longCaptionString)
 
         // json에 있는 바운딩 박스 가져오기
         data[key].new_same_regions.map((object:any, index:number)=>(
@@ -94,21 +97,20 @@ const Upload: React.FC = () => {
       const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
       setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
 
-      let cocoCaptions:string[] = data[key].image_data.coco_caption
-      const longCaptionString = cocoCaptions.join('\n'); // coco_caption을 합쳐 string으로 만들기
+      let longCaptionList:string[] = longCaption.split(".")
 
       // long 캡션 생성
-      const textarea = document.getElementById('longcaption') as HTMLInputElement;
+      const textarea = document.getElementById('longCaption') as HTMLInputElement;
       if (textarea) {
-        textarea.value = longCaptionString;
+        textarea.value = longCaption;
       }
       // cocoCaptions의 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
-      if (selectedSegment.length < cocoCaptions.length) {
-        const newSelectedSegment = Array(cocoCaptions.length).fill(false);
+      if (selectedSegment.length < longCaptionList.length) {
+        const newSelectedSegment = Array(longCaption.length).fill(false);
         setSelectedSegment(newSelectedSegment);
       }
       // segment caption 리스트 생성 
-      const captionList = cocoCaptions.map((caption, index) => (
+      const captionList = longCaptionList.map((caption, index) => (
         <tr
           key={`segment${index}`}
           onClick={() => {
@@ -125,15 +127,14 @@ const Upload: React.FC = () => {
     })
     .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
     
-  }, [selectedSegment]);
+  }, [selectedSegment, longCaption]);
 
   // =============================================================================================
   // 헤더에 있는 버튼, 이전이나 다음 페이지로 이동 시 현재까지 변경된 사항들이 저장되도록 하기
   // prev 버튼 실행시 적용되는 함수
   const prevPage = () =>{
     if (imageId !== "1") window.location.href = `http://localhost:3000/upload/${Number(imageId)-1}`
-
-    
+    // 현재까지 변경된 사항들이 저장되도록 하기
   }
   // next 버튼 실행시 적용되는 함수
   const nextPage = () =>{
@@ -179,6 +180,16 @@ const Upload: React.FC = () => {
         else entity.innerHTML =  `none   ▼`
 
       }
+    }
+  }
+
+  const saveLongcaption = () => {
+    const textarea = document.getElementById('longCaption') as HTMLInputElement;
+    let innerlongCaption:string = String(textarea.value);
+    console.log("update longcaption")
+    setlongCaption(innerlongCaption)
+    if (textarea){
+      textarea.value = innerlongCaption
     }
   }
   // ==============================================================================================
@@ -358,7 +369,8 @@ const Upload: React.FC = () => {
           <h2>Long caption</h2>
           <h3>전반적인 이미지에 대한 설명</h3>
           {/* textaread의 readOnly  속성을 제거하면 내용을 고칠 수 있음~ */}
-          <textarea id="longcaption" className={`${styles.fixedTextarea} ${styles.longCaption}`} readOnly></textarea>
+          <textarea id="longCaption" className={`${styles.fixedTextarea} ${styles.longCaption} ${styles.radius}`}></textarea>
+          <button onClick={() => saveLongcaption()} className={`${styles.longCaptionSave} ${styles.radius}`}>save</button>
         </div>
         <div>
           <h2>Segments of Long caption</h2>
@@ -373,7 +385,7 @@ const Upload: React.FC = () => {
             <h3>박스에 대한 <b>정확한 설명</b>을 입력해주세요.
               <br/>텍스트를 클릭하면 수정할 수 있습니다. </h3>
             {boxes.length > 0 && (
-              <div className={`${styles.captionSet}`}>
+              <div className={`${styles.captionSet} ${styles.radius}`}>
                 <table>
                   <tbody>
                     {boxes.map((box, boxIndex) => (
@@ -406,7 +418,7 @@ const Upload: React.FC = () => {
             <h2>error caption set</h2>
             <h3>박스에 대해 <b>틀린</b> 설명을 입력해주세요. <br/>텍스트를 클릭하면 수정할 수 있습니다.</h3>
             {boxes.length > 0 && (
-              <div className={`${styles.captionSet}`}>
+              <div className={`${styles.captionSet} ${styles.radius}`}>
                 <table>
                   <tbody>
                     {boxes.map((box, boxIndex) => (
