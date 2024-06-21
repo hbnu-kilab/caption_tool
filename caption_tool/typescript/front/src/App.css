@@ -13,6 +13,37 @@
   }
 }
 
+@font-face {
+  font-family: 'Freesentation-9Black';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-9Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Freesentation-9Black';
+  src: url('./font/Freesentation-7Bold.ttf') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Freesentation-9Black';
+  src: url('./font/Freesentation-6SemiBold.ttf') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Freesentation-9Black';
+  src: url('./font/Freesentation-4Regular.ttf') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Freesentation-9Black';
+  src: url('./font/Freesentation-1Thin.ttf') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -26,6 +57,17 @@
 
 .App-link {
   color: #61dafb;
+}
+
+header{
+  font-family: 'Freesentation-9Black';
+  font-weight: 100;
+}
+
+body{
+  background-color: aliceblue;
+  font-family: 'Freesentation-9Black';
+  font-weight: 400;
 }
 
 @keyframes App-logo-spin {

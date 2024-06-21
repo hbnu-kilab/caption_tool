@@ -2,12 +2,13 @@ import { Dispatch, SetStateAction } from 'react';
 
 // 드래그 박스 객체를 만들기 위한 인터페이스
 interface Box {
-  x: number;
-  y: number;
-  height: number;
-  width: number;
-  captions: string[];
-  errorCaptions: string[];
+  x: number; // 좌측 상단 꼭지점 x 좌표
+  y: number; // 좌측 상단 꼭지점 y 좌표
+  height: number; // 박스 높이
+  width: number; // 박스 너비
+  entity: string[]; // 감지된 물체들의 이름
+  captions: string[]; // correct caption
+  errorCaptions: string[]; // error caption
 }
 
 
@@ -32,7 +33,6 @@ export const SegmentClick = (segment: string, segmentIndex:number, setBoxes: Dis
           console.log(segmentIndex, newSelectedSegment )
           return newSelectedSegment;
         })
-
       }
       return newBoxes; // 인덱스 값에 해당하는 객체에 caption 추가된 boxes arr 반환
     });

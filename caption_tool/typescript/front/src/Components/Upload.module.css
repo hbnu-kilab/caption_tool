@@ -4,39 +4,200 @@
     justify-content: space-around;
     gap: 10px;
 }
-.innerDiv{
-    position: relative;
-    margin: 10px 20px;
+/* ====================================================== */
+/* 공통 적용 - 폰트 */
+h2{
+    margin-bottom: 5px;
 }
-/* Box */
-.delBtn{
-    background-color: crimson;
+h3 {
+    margin-top: 0;
+    font-weight: 400;
+    color: rgb(122, 124, 130);
+}
+h3 > b {
+    color: rgb(75, 76, 81);
+}
+.fontRed{
+    color: rgb(220, 27, 20);
+}
+/* ====================================================== */
+/* 공통 적용 - 텍스트 hover 시 두껍게 만드는 효과 */
+.hovering:hover{
+    font-weight: 700;
+}
+/* 공통 적용 - 선택 못하게 하는 효과 */
+.noSelect {
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+.radius{
+    border-radius: 10px;
+}
+/* ====================================================== */
+.nav{
+    /* 헤더 */
+    box-sizing: border-box;
+    position: fixed;
+    z-index: 1;
+    background-color: rgba(172, 176, 185,0.5);
+    backdrop-filter: blur(5px);
+    top:0;
+    width: 100%;
+    height: 50px;
+    padding: 0px 10px;
+    display: flex;
+    justify-content: space-between;
+    gap: 75%;
+}
+.nav > .button {
+    padding: 0px 10px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border: 0;
+    background-color: transparent;
+    color: white;
+}
+.nav > .button:hover {
+    /* color: rgb(172, 176, 185); */
+    /* font-weight: 900; */
+    padding: -3px 10px;
+    font-size: 1.3rem;
+    /* text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white; */
+}
+.nav > .deadButton {
+    padding: 5px 10px;
+    font-size: 1.2rem;
+    font-weight: 900;
+    border: 0;
+    background-color: transparent;
+    color: transparent;
+}
+/* ====================================================== */
+/* floating bar */
+.draggable{
+    position: fixed;
+    width: max-content;
+    height: max-content;
+    cursor: move;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 20;
+}
+.floatingBar{
+    top: 100px;
+    width: max-content;
+    height: max-content;
+    background-color: transparent;
+}
+.innerFloatingBar{
+    display: hidden;
+}
+/* ====================================================== */
+.innerDiv{
+    /* 바디 박스 */
+    position: relative;
+    margin: 70px 20px;
+}
+/* ====================================================== */
+/* Boxes 버튼 */
+.addBtn{
+    background-color: rgb(33, 183, 68);
     color: white;
     border: 0;
     margin-left: 10px;
+    padding: 5px 7px;
+    border-radius: 20px;
 }
-/* Caption */
+.delBtn{
+    background-color: rgb(220, 27, 20);
+    color: white;
+    border: 0;
+    margin-left: 10px;
+    padding: 5px 7px;
+    border-radius: 20px;
+}
+.displayBtn{
+    background-color: rgb(29, 31, 37);
+    color: white;
+    border: 0;
+    margin-left: 10px;
+    padding: 5px 7px;
+    border-radius: 20px;
+}
+/* ====================================================== */
+/* entity 리스트 div */
+.entityList{
+    position: relative;
+    background-color: rgb(231, 234, 237);
+    border-radius: 10px;
+    padding-top: 10px;
+    padding-bottom: 35px;
+    margin-top: 10px;
+    margin-bottom: 40px;
+
+    width: 100%;
+}
+.entityList > li {
+    margin: 10px 20px;   
+}
+.addEntity{
+    /* 추가 버튼 */
+    position: absolute;
+    right: 15px;
+
+    background-color: rgb(33, 183, 68);
+    color: white;
+    border: 0;
+    padding: 5px 7px;
+    border-radius: 20px;
+}
+
+/* ====================================================== */
 /* selected segment */
 .select{
     text-decoration: line-through;
     color: gray;
 }
-/* textarea */
+/* ====================================================== */
+/* long caption */
 .fixedTextarea {
     resize: none; /* 크기 조정 비활성화 */
     padding: 10px;
+    font-family: 'Freesentation-9Black';
+    font-size: 1rem;
+    border: 2px solid rgba(28, 28, 33,0.2);
 }
 .longCaption{
+    /* border: 0; */
+    outline: none;
+    background-color: white;
     width: 100%;
-    min-width: 400px;
-    max-width: 700px;
     height: 100px;
 }
+.longCaptionSave{
+    font-size: 1.2rem;
+    position: relative;
+    padding: 10px;
+    margin-top: 10px;
+    border: 0;
+    background-color: rgb(83, 124, 206);
+    color: white;
+    width: calc(100% + 20px);
+}
+.longCaptionSave:hover{
+    background-color: rgb(33, 83, 183);
+    color: white;
+}
+
+/* ====================================================== */
+/* correct & error */
 .captionContainer{
     width: 100%;
 }
 .captionSet{
-    border: 1px solid black;
+    border: 2px solid rgba(28, 28, 33,0.2);
+    background-color: white;
     padding: 10PX;
     width: calc(100%-20px);
 }
