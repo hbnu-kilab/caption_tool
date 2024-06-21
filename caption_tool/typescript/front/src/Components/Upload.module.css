@@ -73,6 +73,27 @@ h3 > b {
     color: transparent;
 }
 /* ====================================================== */
+/* floating bar */
+.draggable{
+    position: fixed;
+    width: max-content;
+    height: max-content;
+    cursor: move;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 20;
+}
+.floatingBar{
+    top: 100px;
+    width: max-content;
+    height: max-content;
+    background-color: transparent;
+}
+.innerFloatingBar{
+    display: hidden;
+}
+/* ====================================================== */
 .innerDiv{
     /* 바디 박스 */
     position: relative;

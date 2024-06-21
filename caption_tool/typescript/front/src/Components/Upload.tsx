@@ -17,6 +17,7 @@ import {
 
 // ReactDOM, rendering에 사용
 import ReactDOM from 'react-dom';
+import Draggable from 'react-draggable'; // floating bar 만들기 위함
 
 // url parameter 접근을 위함
 import { useParams } from 'react-router-dom';
@@ -300,67 +301,71 @@ const Upload: React.FC = () => {
             </div>
           ))}
         </div>
-        {boxes.length > 0 && (
-          <div>
-            <h2>Boxes</h2>
-            <h3>박스 entity name을 클릭하면 수정할 수 있습니다.</h3>
-            <table>
-                {boxes.map((box, boxIndex) => (
-                  <tbody>
-                  <tr key={`box${boxIndex}`}>
-                    <td>
-                      <span>{boxIndex}</span>
-                    </td>
-                    <td className={`${styles.hovering} ${box.entity.length>0? "":styles.fontRed}`}> 
-                      <span id={`entity${boxIndex}`}
-                      onClick={() => handleEntityDisplay(boxIndex, box.entity[0])}>{box.entity.length>0?`${box.entity[0]}   ▼`:'none   ▼'}</span>
-                      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{/* 단순 띄어쓰기, 의미 없음 */}
-                    </td>
-                    <td>
-                      <button onClick={() => handleBoxClick(boxIndex, setBoxes)} className={`${styles.addBtn}`}>
-                        + Caption
-                      </button>
-                    </td>
-                    <td>
-                      <button onClick={() => handleDeleteClick(boxIndex, setBoxes)} className={`${styles.delBtn}`}>
-                         Delete
-                      </button>
-                    </td>
-                    <td>
-                      <button id={`displayBtn${boxIndex}`} onClick={() => handleBoxDisplay(boxIndex)} className={`${styles.displayBtn}`}>
-                        ON
-                      </button>
-                    </td>
-                  </tr>
-                  <tr 
-                  key={`entityList${boxIndex}`} 
-                  id={`entityList${boxIndex}`}
-                  style={{
-                    position: 'relative',
-                    display:'none',
-                    width: '100%'
-                  }}>
-                    <td></td>
-                    <td colSpan={4}>
-                      <div className={`${styles.entityList}`}>
-                        {boxes[boxIndex].entity.map((entity, entityIndex) => (
-                          <li
-                          key={ `entity${boxIndex}${entityIndex}`}
-                          onClick={() => EntityClick(entity, entityIndex, boxIndex, setBoxes)}
-                          className={`${styles.hovering}`}
-                          >{entity}</li>
-                        ))}
-                        <button
-                        onClick={() => AddEntityClick(boxIndex, setBoxes)}
-                        className={`${styles.addEntity}`}>+ Entity</button>
-                      </div>
-                    </td>
-                  </tr>
-                  </tbody>
-                ))}
-            </table>
+        <Draggable>
+          <div className={`${styles.draggable} ${styles.floatingBar}`}>
+            {boxes.length > 0 && (
+              <div className={`${styles.draggable} ${styles.innerFloatingBar}`}>
+                <h2>Boxes</h2>
+                <h3>박스 entity name을 클릭하면 수정할 수 있습니다.</h3>
+                <table>
+                    {boxes.map((box, boxIndex) => (
+                      <tbody>
+                      <tr key={`box${boxIndex}`}>
+                        <td>
+                          <span>{boxIndex}</span>
+                        </td>
+                        <td className={`${styles.hovering} ${box.entity.length>0? "":styles.fontRed}`}> 
+                          <span id={`entity${boxIndex}`}
+                          onClick={() => handleEntityDisplay(boxIndex, box.entity[0])}>{box.entity.length>0?`${box.entity[0]}   ▼`:'none   ▼'}</span>
+                          <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>{/* 단순 띄어쓰기, 의미 없음 */}
+                        </td>
+                        <td>
+                          <button onClick={() => handleBoxClick(boxIndex, setBoxes)} className={`${styles.addBtn}`}>
+                            + Caption
+                          </button>
+                        </td>
+                        <td>
+                          <button onClick={() => handleDeleteClick(boxIndex, setBoxes)} className={`${styles.delBtn}`}>
+                            Delete
+                          </button>
+                        </td>
+                        <td>
+                          <button id={`displayBtn${boxIndex}`} onClick={() => handleBoxDisplay(boxIndex)} className={`${styles.displayBtn}`}>
+                            ON
+                          </button>
+                        </td>
+                      </tr>
+                      <tr 
+                      key={`entityList${boxIndex}`} 
+                      id={`entityList${boxIndex}`}
+                      style={{
+                        position: 'relative',
+                        display:'none',
+                        width: '100%'
+                      }}>
+                        <td></td>
+                        <td colSpan={4}>
+                          <div className={`${styles.entityList}`}>
+                            {boxes[boxIndex].entity.map((entity, entityIndex) => (
+                              <li
+                              key={ `entity${boxIndex}${entityIndex}`}
+                              onClick={() => EntityClick(entity, entityIndex, boxIndex, setBoxes)}
+                              className={`${styles.hovering}`}
+                              >{entity}</li>
+                            ))}
+                            <button
+                            onClick={() => AddEntityClick(boxIndex, setBoxes)}
+                            className={`${styles.addEntity}`}>+ Entity</button>
+                          </div>
+                        </td>
+                      </tr>
+                      </tbody>
+                    ))}
+                </table>
+              </div>
+            )}
           </div>
-        )}
+        </Draggable>
       </div>
       {/* 캡션 div */}
       <div className={`${styles.innerDiv}`}>
