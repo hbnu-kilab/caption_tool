@@ -7,7 +7,7 @@ interface Box {
   width: number; // 박스 너비
   entity: string[]; // 감지된 물체들의 이름
   captions: string[]; // correct caption
-  errorCaptions: string[]; // error caption
+  errorCaptions: string[][]; // error caption
 }
 
 // 이미지의 바운딩 박스가 없는 공간을 마우스로 클릭했을때 발생하는 이벤트

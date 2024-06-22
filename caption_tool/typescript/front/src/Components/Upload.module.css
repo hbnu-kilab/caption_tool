@@ -79,16 +79,21 @@ h3 > b {
     width: max-content;
     height: max-content;
     cursor: move;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
     padding: 20px;
     border-radius: 10px;
     z-index: 20;
+    font-weight: 700;
 }
 .floatingBar{
-    top: 100px;
+    bottom: 70%;
+    left: 20px;
     width: max-content;
     height: max-content;
+    max-height: 150px;
     background-color: transparent;
+    backdrop-filter: none;
 }
 .innerFloatingBar{
     display: hidden;
@@ -102,12 +107,22 @@ h3 > b {
 /* ====================================================== */
 /* Boxes 버튼 */
 .addBtn{
+    position: absolute;
     background-color: rgb(33, 183, 68);
     color: white;
     border: 0;
-    margin-left: 10px;
+    right: 10px;
     padding: 5px 7px;
+    margin-bottom: 20px;
     border-radius: 20px;
+}
+.addBtn:hover{
+    /* 추가 버튼 */
+    background-color: rgb(29, 127, 51);
+}
+hr{
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .delBtn{
     background-color: rgb(220, 27, 20);
@@ -144,7 +159,8 @@ h3 > b {
 .addEntity{
     /* 추가 버튼 */
     position: absolute;
-    right: 15px;
+    right: -50px;
+    width: max-content;
 
     background-color: rgb(33, 183, 68);
     color: white;
@@ -153,6 +169,13 @@ h3 > b {
     border-radius: 20px;
 }
 
+/* ====================================================== */
+.keywordSet{
+    border: 2px solid rgba(28, 28, 33,0.2);
+    background-color: white;
+    padding: 10PX;
+    width: 100%;
+}
 /* ====================================================== */
 /* selected segment */
 .select{
@@ -181,12 +204,12 @@ h3 > b {
     padding: 10px;
     margin-top: 10px;
     border: 0;
-    background-color: rgb(83, 124, 206);
+    background-color: rgb(33, 183, 68);
     color: white;
     width: calc(100% + 20px);
 }
 .longCaptionSave:hover{
-    background-color: rgb(33, 83, 183);
+    background-color: rgb(29, 127, 51);
     color: white;
 }
 
@@ -196,6 +219,7 @@ h3 > b {
     width: 100%;
 }
 .captionSet{
+    position: relative;
     border: 2px solid rgba(28, 28, 33,0.2);
     background-color: white;
     padding: 10PX;

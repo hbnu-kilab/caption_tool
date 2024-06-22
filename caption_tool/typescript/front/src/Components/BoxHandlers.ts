@@ -10,7 +10,7 @@ interface Box {
   width: number; // 박스 너비
   entity: string[]; // 감지된 물체들의 이름
   captions: string[]; // correct caption
-  errorCaptions: string[]; // error caption
+  errorCaptions: string[][]; // error caption
 }
 
 // 박스 인덱스를 클릭했을 때
@@ -35,8 +35,9 @@ export const handleBoxClick = (index: number, setBoxes: Dispatch<SetStateAction<
   // json 파일에 있는 bounding 박스 재로딩
   setBoxes((prevBoxes) => {
     const newBoxes = [...prevBoxes];
+    let errorCaptionIndex:number = newBoxes[index].captions.length
     newBoxes[index].captions.push(caption); // caption 추가
-    newBoxes[index].errorCaptions.push(caption); // error caption 추가
+    newBoxes[index].errorCaptions[newBoxes[index].captions.length-1].push(caption); // error caption 추가
     return newBoxes; // box array return
   });
 };
@@ -48,3 +49,23 @@ export const handleDeleteClick = (index: number, setBoxes: Dispatch<SetStateActi
     return newBoxes;
   });
 };
+
+  // display none
+export  const handleBoxDisplay = (index:number) => {
+    let box = document.getElementById(`box${index}`);
+    let displayBtn = document.getElementById(`displayBtn${index}`);
+    if (box !== null &&displayBtn !== null){
+      console.log(box.style.display)
+      if (box.style.display === 'none'){
+        box.style.display = 'inline'
+        displayBtn.style.backgroundColor = 'rgb(29, 31, 37)'
+        displayBtn.innerHTML = "ON"
+      }
+      else {
+        box.style.display = 'none'
+        displayBtn.style.backgroundColor = 'rgb(172, 176, 185)'
+        displayBtn.innerHTML = "OFF"
+
+      }
+    }
+  }

@@ -8,7 +8,7 @@ interface Box {
   width: number; // 박스 너비
   entity: string[]; // 감지된 물체들의 이름
   captions: string[]; // correct caption
-  errorCaptions: string[]; // error caption
+  errorCaptions: string[][]; // error caption
 }
 
 
