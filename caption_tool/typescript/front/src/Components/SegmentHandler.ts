@@ -25,7 +25,7 @@ export const SegmentClick = (segment: string, segmentIndex:number, setBoxes: Dis
       const newBoxes = [...prevBoxes];
       if (captionIndex < newBoxes.length){
         newBoxes[captionIndex].captions.push(segment);
-        newBoxes[captionIndex].errorCaptions.push(segment);
+        newBoxes[captionIndex].errorCaptions.push([segment]);
 
         setSelectedSegment((prevNumbers) => { // 이미 선택된 segment의 값은 true로 변환
           const newSelectedSegment = [...prevNumbers];

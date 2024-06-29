@@ -82,9 +82,7 @@ const Upload: React.FC = () => {
         setlongCaption(longCaptionString) // longCaption에 narrative caption 넣기
 
         let keywordsList:string[] = Object.keys(data[key].new_objects) // 키워드 리스트
-
-        console.log(keywords)
-
+        
         // json에 있는 바운딩 박스 가져오기
         data[key].new_same_regions.map((object:any, index:number)=>(
           boxes.push({
@@ -98,6 +96,41 @@ const Upload: React.FC = () => {
           })
         ))
         console.log(boxes)
+        
+        boxes.map((box: Box, index: number)=>{
+          keywordsList = keywordsList.concat(box.entity)
+        })
+        console.log(keywordsList)
+
+        let set = new Set(keywordsList)
+        keywordsList = [...set]
+
+        keywordsList.map((keyword: string, index:number)=>(
+          keywords.push({
+            instance: keyword, // 키워드
+            synonym: [], // 동의어
+            antonym: [], // 반의어
+          })
+        ))
+
+        keywordsList.map((keyword: string, index: number) => {
+          keywords.forEach((keywordInstance: Keyword, keywordsIndex: number) => {
+            if (keyword !== keywordInstance.instance) {
+              if (keyword.includes(keywordInstance.instance)) {
+                keywordInstance.synonym.push(keyword);
+                // 여기서 for 루프는 let i = 0에서 시작합니다.
+                for (let i = 0; i < keywords.length; i++) {
+                  if (keywords[i].instance === keyword) {
+                    keywords.splice(i, 1);
+                    i--; // splice 후에 인덱스를 줄여줍니다.
+                  }
+                }
+              }
+            }
+          });
+
+          return null; // JSX 엘리먼트가 아닌 경우 null 반환
+        });
       })
       .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
   }, []);
@@ -173,6 +206,26 @@ const Upload: React.FC = () => {
         entityList.style.display = 'none'
         if (entity.innerHTML !== 'none   ▲') entity.innerHTML = `${entityName}   ▼`
         else entity.innerHTML =  `none   ▼`
+
+      }
+    }
+  }
+
+  const handleKeywordDisplay = (index:number, keywordInstance:string, synonym:string[]) => {
+    let keyword = document.getElementById(`keyword${index}`);
+    let keywordsyn = document.getElementById(`keywordsyn${index}`);
+    console.log(`keywordsyn${index}`)
+
+    if (keyword !== null && keywordsyn!== null){
+      if (keywordsyn.style.display === 'none'){
+        keywordsyn.style.display = 'table-row';
+        if (keyword.innerHTML !== 'none   ▼') keyword.innerHTML =  `${keywordInstance}   ▲`
+        else keyword.innerHTML =  `none   ▲`
+      }
+      else {
+        keywordsyn.style.display = 'none'
+        if (keyword.innerHTML !== 'none   ▲') keyword.innerHTML = `${keywordInstance}   ▼`
+        else keyword.innerHTML =  `none   ▼`
 
       }
     }
@@ -309,11 +362,11 @@ const Upload: React.FC = () => {
                         <td>
                           <span>{boxIndex}</span>
                         </td>
-                        {/* <td className={`${styles.hovering} ${box.entity.length>0? "":styles.fontRed}`}>  */}
-                          {/* <span id={`entity${boxIndex}`} */}
-                          {/* // onClick={() => handleEntityDisplay(boxIndex, box.entity[0])}>{box.entity.length>0?`${box.entity[0]}   ▼`:'none   ▼'}</span> */}
-                          {/* <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>단순 띄어쓰기, 의미 없음 */}
-                        {/* </td> */}
+                        <td className={`${styles.hovering} ${box.entity.length>0? "":styles.fontRed}`}> 
+                          <span id={`entity${boxIndex}`}
+                          onClick={() => handleEntityDisplay(boxIndex, box.entity[0])}>{box.entity.length>0?`${box.entity[0]}   ▼`:'none   ▼'}</span>
+                          <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        </td>
                         {/* <td>
                           <button onClick={() => handleBoxClick(boxIndex, setBoxes)} className={`${styles.addBtn}`}>
                             + Caption
@@ -369,7 +422,43 @@ const Upload: React.FC = () => {
         <h1>&nbsp;</h1>
         <h1>Keyword of instance</h1>
         <div className={`${styles.keywordSet} ${styles.radius}`}>
-
+        <table style={{width:'100%', tableLayout: 'fixed'}}>
+          {keywords.map((keyword, keywordIndex) => (
+            <tbody>
+              <tr 
+              key={`keyword${keywordIndex}`}
+              onClick={()=>handleKeywordDisplay(keywordIndex, keyword.instance, keyword.synonym)}
+              >
+                <td>
+                  <span
+                  id={`keyword${keywordIndex}`}
+                  className={`${styles.hovering}`}
+                  >{`${keyword.instance}   ▼`}</span>
+                </td>
+              </tr>
+              <tr 
+                key={`keywordsyn${keywordIndex}`} 
+                id={`keywordsyn${keywordIndex}`}
+                style={{
+                  position: 'relative',
+                  display:'none',
+                  width: '100%'
+                }}>
+                <td colSpan={4}>
+                  <div className={`${styles.keywordList}`}>
+                    {keyword.synonym.map((synonym, synonymIndex) => (
+                      <li
+                      key={ `keywordsyn${keywordIndex}${synonymIndex}`}
+                      className={`${styles.hovering}`}
+                      >{synonym}</li>
+                    ))}
+                    <button className={`${styles.addEntity}`}>+ Keyword</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          ))}
+        </table>
         </div>
       </div>
       {/* ===================================================================================== */}      
@@ -386,7 +475,6 @@ const Upload: React.FC = () => {
           <h3>segment를 클릭하여 알맞은 박스 인덱스를 입력해주세요</h3>
           <table id="captionList"></table>
         </div>
-
 
         {/* correct caption */}
         <div className={`${styles.flexContainer}`}>
