@@ -6,7 +6,10 @@ import styles from './Upload.module.css';
 import { handleBoxCreate, handleBoxClick, handleDeleteClick, handleBoxDisplay } from './BoxHandlers';
 import { handleAddCaption, handleAddErrorCaption, handleCaptionClick, handleErrorCaptionClick } from './CaptionHandler';
 import { SegmentClick } from './SegmentHandler';
-import { EntityClick, AddEntityClick } from './EntityHandler';
+import { KeywordClick, SynonymClick, 
+  addKeywordsClick, addSynonymClick,
+  delKeywordClick, delSynonymClick
+} from './KeywordsHandler';
 import {
   handleMouseDown,
   handleMouseMove,
@@ -35,7 +38,7 @@ interface Box {
 interface Keyword {
   instance: string; // 키워드
   synonym: string[]; // 동의어
-  antonym: string[]; // 반의어
+  antonym: string[]; // 반의어 <- etri에선 몰라야함ㅋㅋ
 }
 
 // 본격적인 페이지 코드
@@ -77,7 +80,10 @@ const Upload: React.FC = () => {
       .then(data => { // 데이터를 받아오면
         const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
         setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
-        let longCaptionString:string = data[key].image_data.localizednarratives[0].caption // narrative caption 가져오기
+        
+
+        // narrative 와 cococaption을 합쳐 long caption에 추가
+        let longCaptionString:string = data[key].image_data.localizednarratives[0].caption + data[key].image_data.coco_caption.join('.') // narrative caption 가져오기
         setlongCaption(longCaptionString) // longCaption에 narrative caption 넣기
 
         let keywordsList:string[] = Object.keys(data[key].new_objects) // 키워드 리스트
@@ -189,26 +195,6 @@ const Upload: React.FC = () => {
     // 현재까지 변경된 사항들이 저장되도록 하기
   }
   // ==============================================================================================
-
-  const handleEntityDisplay = (index:number, entityName:string) => {
-    let entity = document.getElementById(`entity${index}`);
-    let entityList = document.getElementById(`entityList${index}`);
-
-    if (entity !== null && entityList!== null){
-      if (entityList.style.display === 'none'){
-        entityList.style.display = 'table-row';
-        if (entity.innerHTML !== 'none   ▼') entity.innerHTML =  `${entityName}   ▲`
-        else entity.innerHTML =  `none   ▲`
-
-      }
-      else {
-        entityList.style.display = 'none'
-        if (entity.innerHTML !== 'none   ▲') entity.innerHTML = `${entityName}   ▼`
-        else entity.innerHTML =  `none   ▼`
-
-      }
-    }
-  }
 
   const handleKeywordDisplay = (index:number, keywordInstance:string, synonym:string[]) => {
     let keyword = document.getElementById(`keyword${index}`);
@@ -361,11 +347,11 @@ const Upload: React.FC = () => {
                         <td>
                           <span>{boxIndex}</span>
                         </td>
-                        <td className={`${styles.hovering} ${box.entity.length>0? "":styles.fontRed}`}> 
+                        {/* <td className={`${styles.hovering} ${box.entity.length>0? "":styles.fontRed}`}> 
                           <span id={`entity${boxIndex}`}
                           onClick={() => handleEntityDisplay(boxIndex, box.entity[0])}>{box.entity.length>0?`${box.entity[0]}   ▼`:'none   ▼'}</span>
                           <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                        </td>
+                        </td> */}
                         {/* <td>
                           <button onClick={() => handleBoxClick(boxIndex, setBoxes)} className={`${styles.addBtn}`}>
                             + Caption
@@ -390,21 +376,21 @@ const Upload: React.FC = () => {
                         display:'none',
                         width: '100%'
                       }}>
-                        <td></td>
+                        {/* <td></td>
                         <td colSpan={4}>
                           <div className={`${styles.entityList}`}>
                             {boxes[boxIndex].entity.map((entity, entityIndex) => (
                               <li
                               key={ `entity${boxIndex}${entityIndex}`}
-                              onClick={() => EntityClick(entity, entityIndex, boxIndex, setBoxes)}
+                              onClick={() => KeywordsClick(entity, entityIndex, boxIndex, setBoxes)}
                               className={`${styles.hovering}`}
                               >{entity}</li>
                             ))}
                             <button
-                            onClick={() => AddEntityClick(boxIndex, setBoxes)}
+                            onClick={() => AddKeywordsClick(boxIndex, setBoxes)}
                             className={`${styles.addEntity}`}>+ Entity</button>
                           </div>
-                        </td>
+                        </td> */}
                       </tr>
                       </tbody>
                     ))}
@@ -415,50 +401,68 @@ const Upload: React.FC = () => {
         </Draggable>
       </div>
       {/* ===================================================================================== */}
-      <div className={`${styles.innerDiv}`}>
+      <div className={`${styles.innerDiv} ${styles.overflowY}`}>
         {/* keywords */}
       <div>
-        <h1>&nbsp;</h1>
         <h1>Keyword of instance</h1>
+        <button onClick = {()=>addKeywordsClick(setKeywords)}
+            className={`${styles.addKeyword}`}>+ Keyword</button>
+          <br/>
+          <br/>
         <div className={`${styles.keywordSet} ${styles.radius}`}>
-        <table style={{width:'100%', tableLayout: 'fixed'}}>
-          {keywords.map((keyword, keywordIndex) => (
-            
-            <tbody>
-              <tr 
-              key={`keyword${keywordIndex}`}
-              onClick={()=>handleKeywordDisplay(keywordIndex, keyword.instance, keyword.synonym)}
-              >
-                <td>
-                  <span
-                  id={`keyword${keywordIndex}`}
-                  className={`${styles.hovering}`}
-                  >{`${keyword.instance}   ▼`}</span>
-                </td>
-              </tr>
-              <tr 
-                key={`keywordsyn${keywordIndex}`} 
-                id={`keywordsyn${keywordIndex}`}
-                style={{
-                  position: 'relative',
-                  display:'none',
-                  width: '100%'
-                }}>
-                <td colSpan={4}>
-                  <div className={`${styles.keywordList}`}>
-                    {keyword.synonym.map((synonym, synonymIndex) => (
-                      <li
-                      key={ `keywordsyn${keywordIndex}${synonymIndex}`}
-                      className={`${styles.hovering}`}
-                      >{synonym}</li>
-                    ))}
-                    <button className={`${styles.addEntity}`}>+ Keyword</button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          ))}
-        </table>
+          
+          <table style={{width:'100%', tableLayout: 'fixed'}}>
+
+            {keywords.map((keyword, keywordIndex) => (
+              <tbody>
+                <tr 
+                key={`keyword${keywordIndex}`}
+                onClick={()=>handleKeywordDisplay(keywordIndex, keyword.instance, keyword.synonym)}
+                >
+                  <td colSpan={3}>
+                    <span
+                    id={`keyword${keywordIndex}`}
+                    className={`${styles.hovering}`}
+                    >{`${keyword.instance}   ▼`}</span>
+                  </td>
+                  <td><button
+                  className={`${styles.displayBtn}`}
+                  onClick={()=>KeywordClick(keyword.instance, keywordIndex, setKeywords)}>modify</button></td>
+                  <td><button
+                  onClick={()=>delKeywordClick(keyword.instance, keywordIndex,setKeywords)} 
+                  className={`${styles.delBtn}`}>delete</button></td>
+                </tr>
+                {/* synonym */}
+                <tr 
+                  key={`keywordsyn${keywordIndex}`} 
+                  id={`keywordsyn${keywordIndex}`}
+                  style={{
+                    position: 'relative',
+                    display:'none',
+                    width: '100%'
+                  }}>
+                  <td colSpan={5}>
+                    <div className={`${styles.keywordList}`}>
+                      {keyword.synonym.map((synonym, synonymIndex) => (
+                        <li>
+                          <span
+                        key={ `keywordsyn${keywordIndex}${synonymIndex}`}
+                        className={`${styles.hovering}`}
+                        onClick={()=> SynonymClick(synonym,keywordIndex,synonymIndex,setKeywords)}
+                        >{synonym}</span> <button
+                        onClick={()=>delSynonymClick(synonym, keywordIndex,synonymIndex,setKeywords)}
+                        className={`${styles.delBtn}`}
+                        >delete</button></li>
+                      ))}
+                      <button onClick = {()=>addSynonymClick(keywordIndex, setKeywords)}
+                      className={`${styles.addEntity}`}>+ Synonym</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            ))}
+          
+          </table>
         </div>
       </div>
       {/* ===================================================================================== */}      
