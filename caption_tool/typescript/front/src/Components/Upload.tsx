@@ -51,7 +51,6 @@ const Upload: React.FC = () => {
   const [startY, setStartY] = useState<number>(0); // Box.y 가 될 변수
 
   const [keywords, setKeywords] = useState<Keyword[]>([]); // 키워드 array 상태 변수
-  const [newkeyword, setNewKeyword] = useState<Keyword | null>(null); // 새로 만드는 박스를 잠시 저장해두는 상태변수
 
   // 이벤트 핸들링을 위한 상태 변수
   const [isDragging, setIsDragging] = useState<boolean>(false); // 드래그 중인지 체크(MouseHandler에서 사용)
@@ -84,7 +83,7 @@ const Upload: React.FC = () => {
         let keywordsList:string[] = Object.keys(data[key].new_objects) // 키워드 리스트
         
         // json에 있는 바운딩 박스 가져오기
-        data[key].new_same_regions.map((object:any, index:number)=>(
+        data[key].new_same_regions.map((object:any)=>(
           boxes.push({
             x: object.avg_x,
             y: object.avg_y,
@@ -97,7 +96,7 @@ const Upload: React.FC = () => {
         ))
         console.log(boxes)
         
-        boxes.map((box: Box, index: number)=>{
+        boxes.map((box: Box)=>{
           keywordsList = keywordsList.concat(box.entity)
         })
         console.log(keywordsList)
@@ -105,7 +104,7 @@ const Upload: React.FC = () => {
         let set = new Set(keywordsList)
         keywordsList = [...set]
 
-        keywordsList.map((keyword: string, index:number)=>(
+        keywordsList.map((keyword: string)=>(
           keywords.push({
             instance: keyword, // 키워드
             synonym: [], // 동의어
@@ -113,8 +112,8 @@ const Upload: React.FC = () => {
           })
         ))
 
-        keywordsList.map((keyword: string, index: number) => {
-          keywords.forEach((keywordInstance: Keyword, keywordsIndex: number) => {
+        keywordsList.map((keyword: string) => {
+          keywords.forEach((keywordInstance: Keyword) => {
             if (keyword !== keywordInstance.instance) {
               if (keyword.includes(keywordInstance.instance)) {
                 keywordInstance.synonym.push(keyword);
@@ -424,6 +423,7 @@ const Upload: React.FC = () => {
         <div className={`${styles.keywordSet} ${styles.radius}`}>
         <table style={{width:'100%', tableLayout: 'fixed'}}>
           {keywords.map((keyword, keywordIndex) => (
+            
             <tbody>
               <tr 
               key={`keyword${keywordIndex}`}

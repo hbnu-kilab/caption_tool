@@ -20,7 +20,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
-    "downlevelIteration": true,
+    "downlevelIteration": true
   },
   "include": [
     "src"
