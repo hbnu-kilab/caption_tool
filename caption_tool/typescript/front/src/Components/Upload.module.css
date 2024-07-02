@@ -125,7 +125,7 @@ h3 > b {
 .overflowY{
     max-width: 500px;
     position: sticky;
-    top:80px;
+    top:90px;
     max-height: calc(100vh - 140px);
     overflow-y: scroll;
     overflow-x: hidden;
