@@ -26,8 +26,8 @@ export const handleAddCaption = (BoxIndex: number, setBoxes: Dispatch<SetStateAc
 }
 
 // error caption의 add 버튼을 누르는 경우 실행됨, 추가용
-export const handleAddErrorCaption = (BoxIndex: number, CaptionIndex:number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
-    const caption = prompt(`Enter caption for this box: ${BoxIndex}`);
+export const handleAddErrorCaption = (BoxIndex: number, CaptionIndex:number, correctCaption:string, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
+    const caption = prompt(`Enter caption for this box: ${BoxIndex}`, correctCaption);
     if (!caption) return;
     if (/^\s*$/.test(caption)) return; // caption에 space바만 입력되어있으면 return
 
@@ -59,6 +59,27 @@ export const handleErrorCaptionClick = (BoxIndex: number, CaptionIndex: number, 
     setBoxes((prevBoxes) => {
         const newBoxes = [...prevBoxes];
         newBoxes[BoxIndex].errorCaptions[CaptionIndex][ErrorCaptionIndex] = caption;
+        return newBoxes;
+    });
+
+}
+
+// error caption을 누르는 경우 실행됨, 삭제용
+export const delCaptionClick = (BoxIndex: number, CaptionIndex: number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
+    setBoxes((prevBoxes) => {
+        const newBoxes = [...prevBoxes];
+        newBoxes[BoxIndex].captions.splice(CaptionIndex, 1);
+        newBoxes[BoxIndex].errorCaptions.splice(CaptionIndex, 1);
+        return newBoxes;
+    });
+
+}
+
+// error caption을 누르는 경우 실행됨, 삭제용
+export const delErrorCaptionClick = (BoxIndex: number, CaptionIndex: number, ErrorCaptionIndex:number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
+    setBoxes((prevBoxes) => {
+        const newBoxes = [...prevBoxes];
+        newBoxes[BoxIndex].errorCaptions[CaptionIndex].splice(ErrorCaptionIndex, 1);
         return newBoxes;
     });
 

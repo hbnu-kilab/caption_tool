@@ -4,7 +4,7 @@ import styles from './Upload.module.css';
 // 이벤트 핸들러 불러오기
 // 이벤트 핸들러란? 사용자의 움직임에 따라 일어나는 함수
 import { handleBoxCreate, handleBoxClick, handleDeleteClick, handleBoxDisplay } from './BoxHandlers';
-import { handleAddCaption, handleAddErrorCaption, handleCaptionClick, handleErrorCaptionClick } from './CaptionHandler';
+import { handleAddCaption, handleAddErrorCaption, handleCaptionClick, handleErrorCaptionClick, delCaptionClick, delErrorCaptionClick } from './CaptionHandler';
 import { SegmentClick } from './SegmentHandler';
 import { KeywordClick, SynonymClick, 
   addKeywordsClick, addSynonymClick,
@@ -376,21 +376,6 @@ const Upload: React.FC = () => {
                         display:'none',
                         width: '100%'
                       }}>
-                        {/* <td></td>
-                        <td colSpan={4}>
-                          <div className={`${styles.entityList}`}>
-                            {boxes[boxIndex].entity.map((entity, entityIndex) => (
-                              <li
-                              key={ `entity${boxIndex}${entityIndex}`}
-                              onClick={() => KeywordsClick(entity, entityIndex, boxIndex, setBoxes)}
-                              className={`${styles.hovering}`}
-                              >{entity}</li>
-                            ))}
-                            <button
-                            onClick={() => AddKeywordsClick(boxIndex, setBoxes)}
-                            className={`${styles.addEntity}`}>+ Entity</button>
-                          </div>
-                        </td> */}
                       </tr>
                       </tbody>
                     ))}
@@ -492,7 +477,7 @@ const Upload: React.FC = () => {
                   <tbody>
                     {boxes.map((box, boxIndex) => (
                       <React.Fragment key={`correctCaption${boxIndex}`}>
-                      {boxIndex>0?<tr><td colSpan={2}><hr style={{width:"100%"}}></hr></td></tr>:""}
+                      {boxIndex>0?<tr><td colSpan={3}><hr style={{width:"100%"}}></hr></td></tr>:""}
                       <tr>
                         <td colSpan={2} style={{display:"table-cell"}}>
                         <button onClick={() => handleAddCaption(boxIndex, setBoxes)} className={`${styles.addBtn}`}>+ add</button>
@@ -511,6 +496,9 @@ const Upload: React.FC = () => {
                                 <span onClick={() => handleCaptionClick(boxIndex, captionIndex, caption, setBoxes)}>
                                   {caption}
                                 </span>
+                              </td>
+                              <td><button
+                                onClick={()=>delCaptionClick(boxIndex, captionIndex, setBoxes)}> X </button>
                               </td>
                             </tr>
                           ))}
@@ -534,10 +522,10 @@ const Upload: React.FC = () => {
                       {box.errorCaptions.length > 0 &&
                         box.errorCaptions.map((errorCaptions, captionIndex) => (
                           <tbody>
-                            {(boxIndex===0)&&(captionIndex===0)?"":<tr><td colSpan={2}><hr style={{width:"100%"}}></hr></td></tr>}
+                            {(boxIndex===0)&&(captionIndex===0)?"":<tr><td colSpan={3}><hr style={{width:"100%"}}></hr></td></tr>}
                             <tr>
                               <td colSpan={2} style={{display:"table-cell"}}>
-                                <button onClick={() => handleAddErrorCaption(boxIndex, captionIndex, setBoxes)} className={`${styles.addBtn}`}>+ add</button>
+                                <button onClick={() => handleAddErrorCaption(boxIndex, captionIndex, box.captions[captionIndex], setBoxes)} className={`${styles.addBtn}`}>+ add</button>
                               </td>
                             </tr>
                             <tr><br></br><br></br></tr>
@@ -557,9 +545,13 @@ const Upload: React.FC = () => {
                                     onClick={() =>
                                       handleErrorCaptionClick(boxIndex, captionIndex,errorCaptionIndex, errorCaption, setBoxes)
                                     }
+                                    style={{color:errorCaption === box.captions[captionIndex]?"red":""}}
                                   >
                                     {errorCaption}
                                   </span>
+                                </td>
+                                <td><button
+                                  onClick={()=>delErrorCaptionClick(boxIndex, captionIndex, errorCaptionIndex, setBoxes)}> X </button>
                                 </td>
                               </tr>
                             ))}
