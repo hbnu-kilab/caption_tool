@@ -221,6 +221,9 @@ const Upload: React.FC = () => {
 
     // 현재까지 변경된 사항들이 저장되도록 하기
   }
+  const saveButton = () =>{
+
+  }
   // ==============================================================================================
 
 
@@ -273,7 +276,10 @@ const Upload: React.FC = () => {
       {/* 현정이는 여기를 신경써주면 될 것 같아! */}
       <div className={`${styles.nav}`}>
         <button className={`${imageId !== "1"? styles.button : styles.deadButton}`} onClick={prevPage}>◀ prev</button>
-        <button className={`${imageId !== "2186"? styles.button : styles.deadButton}`} onClick={nextPage}>next ▶</button>
+        <div className={`${styles.headerControlSection}`}>
+          <button className={`${styles.saveButton}`} onClick={saveButton}>💾 save</button>
+          <button className={`${imageId !== "2186"? styles.button : styles.deadButton}`} onClick={nextPage}>next ▶</button>
+        </div>
       </div>
       {/* 바디 박스 */}
       <div className={`${styles.innerDiv}`}>
