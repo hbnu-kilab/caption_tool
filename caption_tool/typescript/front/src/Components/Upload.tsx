@@ -320,7 +320,7 @@ const Upload: React.FC = () => {
         </div>
 
         {/* correct caption */}
-        <CorrectCaption boxes={boxes} setBoxes={setBoxes} />
+        <CorrectCaption boxes={boxes} setBoxes={setBoxes} /> {/* Caption 전체 */}
       </div>      
     </div>
   );
