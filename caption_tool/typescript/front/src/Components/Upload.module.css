@@ -47,8 +47,34 @@ h3 > b {
     padding: 0px 10px;
     display: flex;
     justify-content: space-between;
-    gap: 75%;
+    align-items: center; 
+    gap: 42%;
 }
+
+.headerControlSection {
+    display: flex;
+    column-gap: 1px;
+    row-gap: 1px;
+    align-items: center;
+}
+
+.headerControlSection > .button {
+    padding: 0px 10px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border: 0;
+    background-color: transparent;
+    color: white;
+}
+
+.headerControlSection > .button:hover {
+    /* color: rgb(172, 176, 185); */
+    /* font-weight: 900; */
+    padding: -3px 10px;
+    font-size: 1.3rem;
+    /* text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white; */
+}
+
 .nav > .button {
     padding: 0px 10px;
     font-size: 1.2rem;
@@ -64,6 +90,7 @@ h3 > b {
     font-size: 1.3rem;
     /* text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white; */
 }
+
 .nav > .deadButton {
     padding: 5px 10px;
     font-size: 1.2rem;
@@ -72,6 +99,21 @@ h3 > b {
     background-color: transparent;
     color: transparent;
 }
+.saveButton {
+    padding: 0px 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    border: 0;
+    background-color: transparent;
+    color: rgb(100, 54, 254);
+}
+.saveButton:hover {
+    /* color: rgb(172, 176, 185); */
+    /* font-weight: 900; */
+    padding: -3px 10px;
+    font-size: 1.1rem;
+    /* text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white; */
+}
 /* ====================================================== */
 /* floating bar */
 .draggable{
@@ -79,35 +121,89 @@ h3 > b {
     width: max-content;
     height: max-content;
     cursor: move;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
     padding: 20px;
     border-radius: 10px;
     z-index: 20;
+    font-weight: 700;
 }
 .floatingBar{
-    top: 100px;
+    bottom: 70%;
+    left: 20px;
     width: max-content;
     height: max-content;
+    max-height: 150px;
     background-color: transparent;
+    backdrop-filter: none;
 }
 .innerFloatingBar{
     display: hidden;
+    height: 300px;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    -webkit-scrollbar-track: none;
 }
+.innerFloatingBar::-webkit-scrollbar {
+    width: 10px;
+  }
+.innerFloatingBar::-webkit-scrollbar-thumb {
+    background-color: #e1e2e5;
+    border-radius: 10px;
+    background-clip: padding-box;
+    border: 2px solid transparent;
+  }
+.innerFloatingBar::-webkit-scrollbar-track {
+    background-color: transparent;
+    border-radius: 10px;
+  }
 /* ====================================================== */
 .innerDiv{
     /* 바디 박스 */
-    position: relative;
-    margin: 70px 20px;
+    display: flex;
+    margin: 70px 20px 0px 20px;
+    flex-direction: column;
 }
+.overflowY{
+    max-width: 500px;
+    position: sticky;
+    top:90px;
+    max-height: calc(100vh - 140px);
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+.overflowY::-webkit-scrollbar {
+    width: 10px;
+  }
+.overflowY::-webkit-scrollbar-thumb {
+    background-color: #e1e2e5;
+    border-radius: 10px;
+    background-clip: padding-box;
+    border: 2px solid transparent;
+  }
+.overflowY::-webkit-scrollbar-track {
+    background-color: transparent;
+    border-radius: 10px;
+  }
 /* ====================================================== */
 /* Boxes 버튼 */
 .addBtn{
-    background-color: rgb(33, 183, 68);
+    position: absolute;
+    background-color: rgb(53, 76, 194);
     color: white;
     border: 0;
-    margin-left: 10px;
+    right: 10px;
     padding: 5px 7px;
+    margin-bottom: 20px;
     border-radius: 20px;
+}
+.addBtn:hover{
+    /* 추가 버튼 */
+    background-color: rgb(19, 30, 86);
+}
+hr{
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .delBtn{
     background-color: rgb(220, 27, 20);
@@ -144,15 +240,51 @@ h3 > b {
 .addEntity{
     /* 추가 버튼 */
     position: absolute;
-    right: 15px;
+    right: 10px;
+    width: max-content;
 
-    background-color: rgb(33, 183, 68);
+    background-color: rgb(53, 76, 194);
     color: white;
     border: 0;
     padding: 5px 7px;
     border-radius: 20px;
 }
 
+.addKeyword{
+    /* 추가 버튼 */
+    width: max-content;
+    position: absolute;
+    right: 20px;
+
+    background-color: rgb(53, 76, 194);
+    color: white;
+    border: 0;
+    padding: 5px 7px;
+    border-radius: 20px;
+}
+
+/* ====================================================== */
+.keywordSet{
+    border: 2px solid rgba(28, 28, 33,0.2);
+    background-color: white;
+    padding: 10px;
+    padding-bottom: 50px;
+    width: calc(100% - 30px);
+}
+.keywordList{
+    position: relative;
+    background-color: rgb(231, 234, 237);
+    border-radius: 10px;
+    padding-top: 10px;
+    padding-bottom: 35px;
+    margin-top: 10px;
+    margin-bottom: 40px;
+
+    width: 100%;
+}
+.keywordList > li {
+    margin: 10px 20px;   
+}
 /* ====================================================== */
 /* selected segment */
 .select{
@@ -172,7 +304,7 @@ h3 > b {
     /* border: 0; */
     outline: none;
     background-color: white;
-    width: 100%;
+    width: calc(100% - 30px);
     height: 100px;
 }
 .longCaptionSave{
@@ -181,12 +313,12 @@ h3 > b {
     padding: 10px;
     margin-top: 10px;
     border: 0;
-    background-color: rgb(83, 124, 206);
+    background-color: rgb(53, 76, 194);
     color: white;
-    width: calc(100% + 20px);
+    width: calc(100% - 5px);
 }
 .longCaptionSave:hover{
-    background-color: rgb(33, 83, 183);
+    background-color: rgb(19, 30, 86);
     color: white;
 }
 
@@ -196,6 +328,7 @@ h3 > b {
     width: 100%;
 }
 .captionSet{
+    position: relative;
     border: 2px solid rgba(28, 28, 33,0.2);
     background-color: white;
     padding: 10PX;
