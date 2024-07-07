@@ -7,7 +7,7 @@ import uploadStyles from './uploadStyles';
 import { handleBoxCreate, handleBoxClick, handleDeleteClick, handleBoxDisplay } from './BoxHandlers';
 import { handleAddCaption, handleAddErrorCaption, handleCaptionClick, handleErrorCaptionClick, delCaptionClick, delErrorCaptionClick } from './CaptionHandler';
 import { SegmentClick } from './SegmentHandler';
-import { KeywordClick, SynonymClick, 
+import { KeywordClick, SynonymClick,
   addKeywordsClick, addSynonymClick,
   delKeywordClick, delSynonymClick
 } from './KeywordsHandler';
@@ -64,7 +64,7 @@ interface AddedStates {
 // 본격적인 페이지 코드
 const Upload: React.FC = () => {
   // 리액트의 상태 변수 정의
-  // js는 기본적으로 비동기 방식으로 연결됨. 
+  // js는 기본적으로 비동기 방식으로 연결됨.
   // 따라서 데이터가 변하면 주기적으로 랜더링을 다시 해야하는데, 이 빈도가 잦으면 컴퓨터 자원을 많이 잡아먹음(모든 데이터를 기준으로 랜더링 되게 만들어선 안된다는 소리임)
   // => 리액트에서는 상태변수를 사용, 상태변수가 변할떄 랜더링 하도록 규정해둠
 
@@ -89,32 +89,40 @@ const Upload: React.FC = () => {
   const [selectedSegment, setSelectedSegment] = useState<boolean[]>([]); // caption으로 추가된 segment에 취소선 css를 부여하게 하기 위한 상태변수, 랜더링의 기준
   const [longCaption, setlongCaption] = useState<string>('');
 
-  // 리액트에선 html 요소에 직접 접근을 막고, useRef나 react dom을 사용하여 접근하도록 함 
-  const imageRef = useRef<HTMLImageElement>(null); // 이미지 요소에 접근하도록 하는 
+  // 리액트에선 html 요소에 직접 접근을 막고, useRef나 react dom을 사용하여 접근하도록 함
+  const imageRef = useRef<HTMLImageElement>(null); // 이미지 요소에 접근하도록 하는
   const { src: imageId } = useParams<{ src: string }>(); // url에서 src 파라미터를 받아옴, 현 페이지에서는 imageId라고 부를거임
   const [imageUrl, setImageUrl] = useState<string>(''); // 이미지 url
 
+    interface OriginalJsonType {
+        [key: string]: any; // 기존 JSON 데이터의 키가 무엇이든 상관없이 모두 any 타입으로 지정
+    }
+
+    const [originalJson, setOriginalJson] = useState<OriginalJsonType>({});
+
+  //const [originalJson, setOriginalJson] = useState({});
 
   // useEffect: 페이지가 처음 시작될때, 기준이 되는 상태변수가 변할때 재 실행 되는 함수
   // 페이지 시작할 때만 실행되는 useEffect
   useEffect(() => {
     console.log(1)
     // /json/splitJson/split_json_${imageId}.json에서 값을 가져옴
-    fetch(`/json/splitJson/split_json_${imageId}.json`) 
-      .then(response => response.json()) 
+    fetch(`/json/splitJson/split_json_${imageId}.json`)
+      .then(response => response.json())
       .then(data => { // 데이터를 받아오면
         const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
         console.log(data)
         console.log({ key })
+        setOriginalJson(data[key]); // 기존 JSON 데이터를 상태로 저장
         setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
-        
+
 
         // narrative 와 cococaption을 합쳐 long caption에 추가
         let longCaptionString:string = data[key].image_data.localizednarratives[0].caption + data[key].image_data.coco_caption.join('.') // narrative caption 가져오기
         setlongCaption(longCaptionString) // longCaption에 narrative caption 넣기
 
         let keywordsList:string[] = Object.keys(data[key].new_objects) // 키워드 리스트
-        
+
         // json에 있는 바운딩 박스 가져오기
         data[key].new_same_regions.map((object:any)=>(
           boxes.push({
@@ -128,7 +136,7 @@ const Upload: React.FC = () => {
           })
         ))
         console.log(boxes)
-        
+
         boxes.map((box: Box)=>{
           keywordsList = keywordsList.concat(box.entity)
         })
@@ -165,13 +173,13 @@ const Upload: React.FC = () => {
         });
       })
       .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
-  }, []);
+  }, [imageId]);
 
   // selectedSegment가 변할때 재 실행 되는 useEffect
   useEffect(() => {
     console.log(2)
     fetch(`/json/splitJson/split_json_${imageId}.json`)
-    .then(response => response.json()) 
+    .then(response => response.json())
     .then(data => { // 데이터를 받아오면
       const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
       setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
@@ -188,7 +196,7 @@ const Upload: React.FC = () => {
         const newSelectedSegment = Array(longCaption.length).fill(false);
         setSelectedSegment(newSelectedSegment);
       }
-      // segment caption 리스트 생성 
+      // segment caption 리스트 생성
       const captionList = longCaptionList.map((caption, index) => (
         <tr
           key={`segment${index}`}
@@ -205,7 +213,7 @@ const Upload: React.FC = () => {
       ReactDOM.render(<tbody>{captionList}</tbody>, document.getElementById('captionList'));
     })
     .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
-    
+
   }, [selectedSegment, longCaption]);
 
   // =============================================================================================
@@ -221,10 +229,53 @@ const Upload: React.FC = () => {
 
     // 현재까지 변경된 사항들이 저장되도록 하기
   }
-  const saveButton = () =>{
+    const saveButton = () => {
+        const updatedJson = {
+            ...originalJson, // 기존 JSON 데이터 유지
+            new_bounding_boxes: boxes.reduce((acc: any, box, index) => {
+                acc[index] = {
+                    x: box.x,
+                    y: box.y,
+                    width: box.width,
+                    height: box.height,
+                    caption: box.captions.reduce((captionAcc: any, caption, captionIndex) => {
+                        captionAcc[caption] = { errorCaption: box.errorCaptions[captionIndex] };
+                        return captionAcc;
+                    }, {})
+                };
+                return acc;
+            }, {}),
+            new_keywords: keywords.reduce((acc: any, keyword) => {
+                acc[keyword.instance] = {
+                    synonym: keyword.synonym,
+                    hyponym: [] // hyponym 데이터가 있는 경우, 여기에 추가하세요.
+                };
+                return acc;
+            }, {})
+        };
 
-  }
-  // ==============================================================================================
+        fetch('/process', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ jsonIndex: imageId, json: updatedJson }),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    alert('저장되었습니다.');
+                } else {
+                    alert('저장 중 오류가 발생했습니다.');
+                }
+            })
+            .catch((error) => {
+                console.error('저장 중 오류가 발생했습니다:', error);
+                alert('저장 중 오류가 발생했습니다.');
+            });
+    };
+
+
+    // ==============================================================================================
 
 
   const onHandleMouseMove = (e: MouseEvent<HTMLDivElement>) =>
@@ -304,7 +355,7 @@ const Upload: React.FC = () => {
         {/* keywords */}
         <KeywordList keywords={keywords} setKeywords={setKeywords} />
       </div>
-      {/* ===================================================================================== */}      
+      {/* ===================================================================================== */}
         <div>
           <h1>Caption</h1>
           <h2>Long caption</h2>
@@ -321,7 +372,7 @@ const Upload: React.FC = () => {
 
         {/* correct caption */}
         <CorrectCaption boxes={boxes} setBoxes={setBoxes} /> {/* Caption 전체 */}
-      </div>      
+      </div>
     </div>
   );
 };
