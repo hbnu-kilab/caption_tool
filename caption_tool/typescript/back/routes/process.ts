@@ -41,10 +41,10 @@ router.post('/', async (req: CustomRequest<UpdateRequestBody>, res: Response) =>
     // 병합된 JSON 파일 저장
     await fs.writeFile(getOutputPath(jsonIndex), JSON.stringify(updatedJson, null, 2));
 
-    // return res.status(201).send();
+     return res.status(201).send();
   } catch (error) {
     console.error(error);
-    // return res.status(500).send("서버 에러가 발생하였습니다.");
+     return res.status(500).send("서버 에러가 발생하였습니다.");
   }
 });
 
