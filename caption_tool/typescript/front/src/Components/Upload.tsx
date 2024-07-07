@@ -254,7 +254,7 @@ const Upload: React.FC = () => {
             }, {})
         };
 
-        fetch('/process', {
+        fetch('http://localhost:4000/process', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

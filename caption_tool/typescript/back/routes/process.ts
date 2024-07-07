@@ -24,6 +24,7 @@ interface CustomRequest<T> extends Request {
  */
 router.post('/', async (req: CustomRequest<UpdateRequestBody>, res: Response) => {
   const { jsonIndex, json } = req.body;
+  console.log("start")
 
   try {
     // 기존 JSON 파일 읽기
