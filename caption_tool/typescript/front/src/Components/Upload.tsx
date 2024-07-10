@@ -1,12 +1,13 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, MouseEvent } from 'react';
 import styles from './Upload.module.css';
+import uploadStyles from './uploadStyles';
 
 // 이벤트 핸들러 불러오기
 // 이벤트 핸들러란? 사용자의 움직임에 따라 일어나는 함수
 import { handleBoxCreate, handleBoxClick, handleDeleteClick, handleBoxDisplay } from './BoxHandlers';
 import { handleAddCaption, handleAddErrorCaption, handleCaptionClick, handleErrorCaptionClick, delCaptionClick, delErrorCaptionClick } from './CaptionHandler';
 import { SegmentClick } from './SegmentHandler';
-import { KeywordClick, SynonymClick, 
+import { KeywordClick, SynonymClick,
   addKeywordsClick, addSynonymClick,
   delKeywordClick, delSynonymClick
 } from './KeywordsHandler';
@@ -24,8 +25,12 @@ import Draggable from 'react-draggable'; // floating bar 만들기 위함
 
 // url parameter 접근을 위함
 import { useParams } from 'react-router-dom';
+import CorrectCaption from './CorrectCaption';
+import KeywordList from './KeywordList';
+import BoundBoxNavigation from './BoundBoxNavigation';
+import BoundBoxes from './BoundBoxes';
 
-interface Box {
+export interface Box {
   x: number; // 좌측 상단 꼭지점 x 좌표
   y: number; // 좌측 상단 꼭지점 y 좌표
   height: number; // 박스 높이
@@ -35,20 +40,40 @@ interface Box {
   errorCaptions: string[][]; // error caption
 }
 
-interface Keyword {
+export interface Keyword {
   instance: string; // 키워드
   synonym: string[]; // 동의어
   antonym: string[]; // 반의어 <- etri에선 몰라야함ㅋㅋ
 }
 
+/**
+ * @description
+ * 추가되거나, 수정되거나 변경사항이 있는 부분에 대한 상태를 따로 유지하기 위해 작성되었습니다.
+ * 새로운 json 파일을 산출하기 위해 REST API 서버와 작업을 수행할 때,
+ * 해당 요소를 활용하여 새로운 필드를 구분합니다.
+ * @endpoint [POST] :4000/process
+ * @body { jsonIndex: number; json: string }
+ * @warning json 데이터셋의 용어 구분, 명칭에 혼란이 있어 임의로 작성되었으니 수정 및 변경 바랍니다.
+ */
+interface AddedStates {
+  newBoundingBoxes: Box[];
+  newKeywords: Keyword[];
+}
+
+
 // 본격적인 페이지 코드
 const Upload: React.FC = () => {
   // 리액트의 상태 변수 정의
-  // js는 기본적으로 비동기 방식으로 연결됨. 
+  // js는 기본적으로 비동기 방식으로 연결됨.
   // 따라서 데이터가 변하면 주기적으로 랜더링을 다시 해야하는데, 이 빈도가 잦으면 컴퓨터 자원을 많이 잡아먹음(모든 데이터를 기준으로 랜더링 되게 만들어선 안된다는 소리임)
   // => 리액트에서는 상태변수를 사용, 상태변수가 변할떄 랜더링 하도록 규정해둠
 
   const [boxes, setBoxes] = useState<Box[]>([]); // 박스 array 상태 변수
+  // 변경되거나 추가되는 box 요소에 대해 따로 보관하여 JSON 파일에 추가하는 목적의 상태 ( AddedState JSDoc 참고 )
+  const [addedBoxes, setAddedBoxes] = useState<AddedStates>({
+    newBoundingBoxes: [],
+    newKeywords: [],
+  });
   const [newBox, setNewBox] = useState<Box | null>(null); // 새로 만드는 박스를 잠시 저장해두는 상태변수
   const [startX, setStartX] = useState<number>(0); // Box.x 가 될 변수
   const [startY, setStartY] = useState<number>(0); // Box.y 가 될 변수
@@ -64,30 +89,40 @@ const Upload: React.FC = () => {
   const [selectedSegment, setSelectedSegment] = useState<boolean[]>([]); // caption으로 추가된 segment에 취소선 css를 부여하게 하기 위한 상태변수, 랜더링의 기준
   const [longCaption, setlongCaption] = useState<string>('');
 
-  // 리액트에선 html 요소에 직접 접근을 막고, useRef나 react dom을 사용하여 접근하도록 함 
-  const imageRef = useRef<HTMLImageElement>(null); // 이미지 요소에 접근하도록 하는 
+  // 리액트에선 html 요소에 직접 접근을 막고, useRef나 react dom을 사용하여 접근하도록 함
+  const imageRef = useRef<HTMLImageElement>(null); // 이미지 요소에 접근하도록 하는
   const { src: imageId } = useParams<{ src: string }>(); // url에서 src 파라미터를 받아옴, 현 페이지에서는 imageId라고 부를거임
   const [imageUrl, setImageUrl] = useState<string>(''); // 이미지 url
 
+    interface OriginalJsonType {
+        [key: string]: any; // 기존 JSON 데이터의 키가 무엇이든 상관없이 모두 any 타입으로 지정
+    }
+
+    const [originalJson, setOriginalJson] = useState<OriginalJsonType>({});
+
+  //const [originalJson, setOriginalJson] = useState({});
 
   // useEffect: 페이지가 처음 시작될때, 기준이 되는 상태변수가 변할때 재 실행 되는 함수
   // 페이지 시작할 때만 실행되는 useEffect
   useEffect(() => {
     console.log(1)
     // /json/splitJson/split_json_${imageId}.json에서 값을 가져옴
-    fetch(`/json/splitJson/split_json_${imageId}.json`) 
-      .then(response => response.json()) 
+    fetch(`/json/splitJson/split_json_${imageId}.json`)
+      .then(response => response.json())
       .then(data => { // 데이터를 받아오면
         const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
+        console.log(data)
+        console.log({ key })
+        setOriginalJson(data[key]); // 기존 JSON 데이터를 상태로 저장
         setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
-        
+
 
         // narrative 와 cococaption을 합쳐 long caption에 추가
         let longCaptionString:string = data[key].image_data.localizednarratives[0].caption + data[key].image_data.coco_caption.join('.') // narrative caption 가져오기
         setlongCaption(longCaptionString) // longCaption에 narrative caption 넣기
 
         let keywordsList:string[] = Object.keys(data[key].new_objects) // 키워드 리스트
-        
+
         // json에 있는 바운딩 박스 가져오기
         data[key].new_same_regions.map((object:any)=>(
           boxes.push({
@@ -101,7 +136,7 @@ const Upload: React.FC = () => {
           })
         ))
         console.log(boxes)
-        
+
         boxes.map((box: Box)=>{
           keywordsList = keywordsList.concat(box.entity)
         })
@@ -138,13 +173,13 @@ const Upload: React.FC = () => {
         });
       })
       .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
-  }, []);
+  }, [imageId]);
 
   // selectedSegment가 변할때 재 실행 되는 useEffect
   useEffect(() => {
     console.log(2)
     fetch(`/json/splitJson/split_json_${imageId}.json`)
-    .then(response => response.json()) 
+    .then(response => response.json())
     .then(data => { // 데이터를 받아오면
       const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
       setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
@@ -161,7 +196,7 @@ const Upload: React.FC = () => {
         const newSelectedSegment = Array(longCaption.length).fill(false);
         setSelectedSegment(newSelectedSegment);
       }
-      // segment caption 리스트 생성 
+      // segment caption 리스트 생성
       const captionList = longCaptionList.map((caption, index) => (
         <tr
           key={`segment${index}`}
@@ -178,7 +213,7 @@ const Upload: React.FC = () => {
       ReactDOM.render(<tbody>{captionList}</tbody>, document.getElementById('captionList'));
     })
     .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
-    
+
   }, [selectedSegment, longCaption]);
 
   // =============================================================================================
@@ -194,27 +229,86 @@ const Upload: React.FC = () => {
 
     // 현재까지 변경된 사항들이 저장되도록 하기
   }
-  // ==============================================================================================
+    const saveButton = () => {
+        const updatedJson = {
+            ...originalJson, // 기존 JSON 데이터 유지
+            new_bounding_boxes: boxes.reduce((acc: any, box, index) => {
+                acc[index] = {
+                    x: box.x,
+                    y: box.y,
+                    width: box.width,
+                    height: box.height,
+                    caption: box.captions.reduce((captionAcc: any, caption, captionIndex) => {
+                        captionAcc[caption] = { errorCaption: box.errorCaptions[captionIndex] };
+                        return captionAcc;
+                    }, {})
+                };
+                return acc;
+            }, {}),
+            new_keywords: keywords.reduce((acc: any, keyword) => {
+                acc[keyword.instance] = {
+                    synonym: keyword.synonym,
+                    hyponym: [] // hyponym 데이터가 있는 경우, 여기에 추가하세요.
+                };
+                return acc;
+            }, {})
+        };
 
-  const handleKeywordDisplay = (index:number, keywordInstance:string, synonym:string[]) => {
-    let keyword = document.getElementById(`keyword${index}`);
-    let keywordsyn = document.getElementById(`keywordsyn${index}`);
-    console.log(`keywordsyn${index}`)
+        fetch('http://localhost:4000/process', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ jsonIndex: imageId, json: updatedJson }),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    alert('저장되었습니다.');
+                } else {
+                    alert('저장 중 오류가 발생했습니다.');
+                }
+            })
+            .catch((error) => {
+                console.error('저장 중 오류가 발생했습니다:', error);
+                alert('저장 중 오류가 발생했습니다.');
+            });
+    };
 
-    if (keyword !== null && keywordsyn!== null){
-      if (keywordsyn.style.display === 'none'){
-        keywordsyn.style.display = 'table-row';
-        if (keyword.innerHTML !== 'none   ▼') keyword.innerHTML =  `${keywordInstance}   ▲`
-        else keyword.innerHTML =  `none   ▲`
-      }
-      else {
-        keywordsyn.style.display = 'none'
-        if (keyword.innerHTML !== 'none   ▲') keyword.innerHTML = `${keywordInstance}   ▼`
-        else keyword.innerHTML =  `none   ▼`
 
-      }
-    }
-  }
+    // ==============================================================================================
+
+
+  const onHandleMouseMove = (e: MouseEvent<HTMLDivElement>) =>
+    handleMouseMove(
+      e,
+      imageRef,
+      isResizing,
+      resizeIndex,
+      boxes,
+      setBoxes,
+      isDragging,
+      startX,
+      startY,
+      setNewBox,
+      movingBoxIndex,
+      setStartX,
+      setStartY
+    );
+
+  const onHandleMouseUp = () =>
+    handleMouseUp(
+      isResizing,
+      setIsResizing,
+      setResizeIndex,
+      isDragging,
+      newBox,
+      setBoxes,
+      setIsDragging,
+      setNewBox,
+      movingBoxIndex,
+      setMovingBoxIndex,
+      handleBoxCreate
+    );
 
   const saveLongcaption = () => {
     const textarea = document.getElementById('longCaption') as HTMLInputElement;
@@ -233,224 +327,35 @@ const Upload: React.FC = () => {
       {/* 현정이는 여기를 신경써주면 될 것 같아! */}
       <div className={`${styles.nav}`}>
         <button className={`${imageId !== "1"? styles.button : styles.deadButton}`} onClick={prevPage}>◀ prev</button>
-        <button className={`${imageId !== "2186"? styles.button : styles.deadButton}`} onClick={nextPage}>next ▶</button>
+        <div className={`${styles.headerControlSection}`}>
+          <button className={`${styles.saveButton}`} onClick={saveButton}>💾 save</button>
+          <button className={`${imageId !== "2186"? styles.button : styles.deadButton}`} onClick={nextPage}>next ▶</button>
+        </div>
       </div>
       {/* 바디 박스 */}
       <div className={`${styles.innerDiv}`}>
         <h1>이미지 캡션 데이터 구축</h1>
         {/* 바운딩 박스 */}
-        <div
-          style={{ position: 'relative', display: 'inline-block' }}
+        <BoundBoxes
+          boxes={boxes}
+          onMouseMove={onHandleMouseMove}
+          onMouseUp={onHandleMouseUp}
           onMouseDown={e => handleMouseDown(e, imageRef, setStartX, setStartY, setIsDragging)}
-          onMouseMove={e =>
-            handleMouseMove(
-              e,
-              imageRef,
-              isResizing,
-              resizeIndex,
-              boxes,
-              setBoxes,
-              isDragging,
-              startX,
-              startY,
-              setNewBox,
-              movingBoxIndex,
-              setStartX,
-              setStartY
-            )
-          }
-          onMouseUp={() =>
-            handleMouseUp(
-              isResizing,
-              setIsResizing,
-              setResizeIndex,
-              isDragging,
-              newBox,
-              setBoxes,
-              setIsDragging,
-              setNewBox,
-              movingBoxIndex,
-              setMovingBoxIndex,
-              handleBoxCreate
-            )
-          }
-        >
-          <img ref={imageRef} src={`${String(imageUrl)}`} className={`${styles.noSelect}`} alt="Upload" />
-          {newBox && (
-            <div
-              className="caption-box"
-              style={{
-                border: '2px solid red',
-                left: newBox.x,
-                top: newBox.y,
-                width: newBox.width,
-                height: newBox.height,
-                position: 'absolute',
-              }}
-            ></div>
-          )}
-          {boxes.map((box, index) => (
-            <div
-              id={`box${index}`}
-              key={index}
-              style={{
-                position: 'absolute',
-                border: '2px solid blue',
-                left: `${box.x}px`,
-                top: `${box.y}px`,
-                width: `${box.width}px`,
-                height: `${box.height}px`,
-                cursor: 'pointer',
-              }}
-              onMouseDown={e => handleBoxMouseDown(index, e, imageRef, setStartX, setStartY, setMovingBoxIndex)}
-            >
-              {box.captions && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    backgroundColor: 'white',
-                    padding: '2px',
-                    border: '1px solid black',
-                    top: '-20px',
-                    left: '0',
-                  }}
-                >
-                  {index}
-                </div>
-              )}
-              <div
-                style={{
-                  position: 'absolute',
-                  width: '10px',
-                  height: '10px',
-                  backgroundColor: 'blue',
-                  right: 0,
-                  bottom: 0,
-                  cursor: 'se-resize',
-                }}
-                onMouseDown={e => handleResizeMouseDown(index, e, setIsResizing, setResizeIndex)}
-              />
-            </div>
-          ))}
-        </div>
+          onBoxMouseDown={e => index => handleBoxMouseDown(index, e, imageRef, setStartX, setStartY, setMovingBoxIndex)}
+          onResizeMouseDown={e => index => handleResizeMouseDown(index, e, setIsResizing, setResizeIndex) }
+          imageRef={imageRef}
+          imageUrl={imageUrl}
+        />
         {/* ===================================================================================== */}
-        <Draggable>
-          <div className={`${styles.draggable} ${styles.floatingBar}`}>
-            {boxes.length > 0 && (
-              <div className={`${styles.draggable} ${styles.innerFloatingBar}`}>
-                {/* <h2>Boxes</h2> */}
-                {/* <h3>박스 entity name을 클릭하면 수정할 수 있습니다.</h3> */}
-                <table>
-                    {boxes.map((box, boxIndex) => (
-                      <tbody>
-                      <tr key={`box${boxIndex}`}>
-                        <td>
-                          <span>{boxIndex}</span>
-                        </td>
-                        {/* <td className={`${styles.hovering} ${box.entity.length>0? "":styles.fontRed}`}> 
-                          <span id={`entity${boxIndex}`}
-                          onClick={() => handleEntityDisplay(boxIndex, box.entity[0])}>{box.entity.length>0?`${box.entity[0]}   ▼`:'none   ▼'}</span>
-                          <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                        </td> */}
-                        {/* <td>
-                          <button onClick={() => handleBoxClick(boxIndex, setBoxes)} className={`${styles.addBtn}`}>
-                            + Caption
-                          </button>
-                        </td> */}
-                        <td>
-                          <button onClick={() => handleDeleteClick(boxIndex, setBoxes)} className={`${styles.delBtn}`}>
-                            Delete
-                          </button>
-                        </td>
-                        <td>
-                          <button id={`displayBtn${boxIndex}`} onClick={() => handleBoxDisplay(boxIndex)} className={`${styles.displayBtn}`}>
-                            ON
-                          </button>
-                        </td>
-                      </tr>
-                      <tr 
-                      key={`entityList${boxIndex}`} 
-                      id={`entityList${boxIndex}`}
-                      style={{
-                        position: 'relative',
-                        display:'none',
-                        width: '100%'
-                      }}>
-                      </tr>
-                      </tbody>
-                    ))}
-                </table>
-              </div>
-            )}
-          </div>
-        </Draggable>
+        <BoundBoxNavigation boxes={boxes} setBoxes={setBoxes} />
       </div>
       {/* ===================================================================================== */}
       <div className={`${styles.innerDiv} ${styles.overflowY}`}>
-        {/* keywords */}
       <div>
-        <h1>Keyword of instance</h1>
-        <button onClick = {()=>addKeywordsClick(setKeywords)}
-            className={`${styles.addKeyword}`}>+ Keyword</button>
-          <br/>
-          <br/>
-        <div className={`${styles.keywordSet} ${styles.radius}`}>
-          
-          <table style={{width:'100%', tableLayout: 'fixed'}}>
-
-            {keywords.map((keyword, keywordIndex) => (
-              <tbody>
-                <tr 
-                key={`keyword${keywordIndex}`}
-                onClick={()=>handleKeywordDisplay(keywordIndex, keyword.instance, keyword.synonym)}
-                >
-                  <td colSpan={3}>
-                    <span
-                    id={`keyword${keywordIndex}`}
-                    className={`${styles.hovering}`}
-                    >{`${keyword.instance}   ▼`}</span>
-                  </td>
-                  <td><button
-                  className={`${styles.displayBtn}`}
-                  onClick={()=>KeywordClick(keyword.instance, keywordIndex, setKeywords)}>modify</button></td>
-                  <td><button
-                  onClick={()=>delKeywordClick(keyword.instance, keywordIndex,setKeywords)} 
-                  className={`${styles.delBtn}`}>delete</button></td>
-                </tr>
-                {/* synonym */}
-                <tr 
-                  key={`keywordsyn${keywordIndex}`} 
-                  id={`keywordsyn${keywordIndex}`}
-                  style={{
-                    position: 'relative',
-                    display:'none',
-                    width: '100%'
-                  }}>
-                  <td colSpan={5}>
-                    <div className={`${styles.keywordList}`}>
-                      {keyword.synonym.map((synonym, synonymIndex) => (
-                        <li>
-                          <span
-                        key={ `keywordsyn${keywordIndex}${synonymIndex}`}
-                        className={`${styles.hovering}`}
-                        onClick={()=> SynonymClick(synonym,keywordIndex,synonymIndex,setKeywords)}
-                        >{synonym}</span> <button
-                        onClick={()=>delSynonymClick(synonym, keywordIndex,synonymIndex,setKeywords)}
-                        className={`${styles.delBtn}`}
-                        >delete</button></li>
-                      ))}
-                      <button onClick = {()=>addSynonymClick(keywordIndex, setKeywords)}
-                      className={`${styles.addEntity}`}>+ Synonym</button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            ))}
-          
-          </table>
-        </div>
+        {/* keywords */}
+        <KeywordList keywords={keywords} setKeywords={setKeywords} />
       </div>
-      {/* ===================================================================================== */}      
+      {/* ===================================================================================== */}
         <div>
           <h1>Caption</h1>
           <h2>Long caption</h2>
@@ -466,105 +371,8 @@ const Upload: React.FC = () => {
         </div>
 
         {/* correct caption */}
-        <div className={`${styles.flexContainer}`}>
-          <div className={`${styles.captionContainer}`}>
-            <h2>correct caption set</h2>
-            <h3>박스에 대한 <b>정확한 설명</b>을 입력해주세요.
-              <br/>텍스트를 클릭하면 수정할 수 있습니다. </h3>
-            {boxes.length > 0 && (
-              <div className={`${styles.captionSet} ${styles.radius}`}>
-                <table>
-                  <tbody>
-                    {boxes.map((box, boxIndex) => (
-                      <React.Fragment key={`correctCaption${boxIndex}`}>
-                      {boxIndex>0?<tr><td colSpan={3}><hr style={{width:"100%"}}></hr></td></tr>:""}
-                      <tr>
-                        <td colSpan={2} style={{display:"table-cell"}}>
-                        <button onClick={() => handleAddCaption(boxIndex, setBoxes)} className={`${styles.addBtn}`}>+ add</button>
-                        </td>
-                      </tr>
-                      <tr><br></br><br></br></tr>
-                        {box.captions.length > 0 &&
-                          box.captions.map((caption, captionIndex) => (
-                            <tr key={`correctCaption${boxIndex}${captionIndex}`} className={`${styles.hovering}`}>
-                              <td>
-                                <span onClick={() => handleCaptionClick(boxIndex, captionIndex, caption, setBoxes)}>
-                                  ({boxIndex}-{captionIndex})
-                                </span>
-                              </td>
-                              <td>
-                                <span onClick={() => handleCaptionClick(boxIndex, captionIndex, caption, setBoxes)}>
-                                  {caption}
-                                </span>
-                              </td>
-                              <td><button
-                                onClick={()=>delCaptionClick(boxIndex, captionIndex, setBoxes)}> X </button>
-                              </td>
-                            </tr>
-                          ))}
-                      </React.Fragment>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/*  */}
-          <div className={`${styles.captionContainer}`}>
-            <h2>error caption set</h2>
-            <h3>박스에 대해 <b>틀린</b> 설명을 입력해주세요. <br/>텍스트를 클릭하면 수정할 수 있습니다.</h3>
-            {boxes.length > 0 && (
-              <div className={`${styles.captionSet} ${styles.radius}`}>
-                <table>
-                    {boxes.map((box, boxIndex) => (
-                      <React.Fragment key={`errorCaption${boxIndex}`}>
-                      {box.errorCaptions.length > 0 &&
-                        box.errorCaptions.map((errorCaptions, captionIndex) => (
-                          <tbody>
-                            {(boxIndex===0)&&(captionIndex===0)?"":<tr><td colSpan={3}><hr style={{width:"100%"}}></hr></td></tr>}
-                            <tr>
-                              <td colSpan={2} style={{display:"table-cell"}}>
-                                <button onClick={() => handleAddErrorCaption(boxIndex, captionIndex, box.captions[captionIndex], setBoxes)} className={`${styles.addBtn}`}>+ add</button>
-                              </td>
-                            </tr>
-                            <tr><br></br><br></br></tr>
-                            {errorCaptions.map((errorCaption, errorCaptionIndex) => (
-                              <tr key={`errorCaption${boxIndex}${captionIndex}${errorCaptionIndex}`} className={`${styles.hovering}`}>
-                                <td>
-                                  <span
-                                    onClick={() =>
-                                      handleErrorCaptionClick(boxIndex, captionIndex,errorCaptionIndex, errorCaption, setBoxes)
-                                    }
-                                  >
-                                    ({boxIndex}-{captionIndex})
-                                  </span>
-                                </td>
-                                <td>
-                                  <span
-                                    onClick={() =>
-                                      handleErrorCaptionClick(boxIndex, captionIndex,errorCaptionIndex, errorCaption, setBoxes)
-                                    }
-                                    style={{color:errorCaption === box.captions[captionIndex]?"red":""}}
-                                  >
-                                    {errorCaption}
-                                  </span>
-                                </td>
-                                <td><button
-                                  onClick={()=>delErrorCaptionClick(boxIndex, captionIndex, errorCaptionIndex, setBoxes)}> X </button>
-                                </td>
-                              </tr>
-                            ))}
-                            </tbody>
-                        ))}
-                      </React.Fragment>
-                    ))}
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>      
+        <CorrectCaption boxes={boxes} setBoxes={setBoxes} /> {/* Caption 전체 */}
+      </div>
     </div>
   );
 };

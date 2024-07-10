@@ -47,8 +47,34 @@ h3 > b {
     padding: 0px 10px;
     display: flex;
     justify-content: space-between;
-    gap: 75%;
+    align-items: center; 
+    gap: 42%;
 }
+
+.headerControlSection {
+    display: flex;
+    column-gap: 1px;
+    row-gap: 1px;
+    align-items: center;
+}
+
+.headerControlSection > .button {
+    padding: 0px 10px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border: 0;
+    background-color: transparent;
+    color: white;
+}
+
+.headerControlSection > .button:hover {
+    /* color: rgb(172, 176, 185); */
+    /* font-weight: 900; */
+    padding: -3px 10px;
+    font-size: 1.3rem;
+    /* text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white; */
+}
+
 .nav > .button {
     padding: 0px 10px;
     font-size: 1.2rem;
@@ -64,6 +90,7 @@ h3 > b {
     font-size: 1.3rem;
     /* text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white; */
 }
+
 .nav > .deadButton {
     padding: 5px 10px;
     font-size: 1.2rem;
@@ -71,6 +98,21 @@ h3 > b {
     border: 0;
     background-color: transparent;
     color: transparent;
+}
+.saveButton {
+    padding: 0px 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    border: 0;
+    background-color: transparent;
+    color: rgb(100, 54, 254);
+}
+.saveButton:hover {
+    /* color: rgb(172, 176, 185); */
+    /* font-weight: 900; */
+    padding: -3px 10px;
+    font-size: 1.1rem;
+    /* text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white; */
 }
 /* ====================================================== */
 /* floating bar */
