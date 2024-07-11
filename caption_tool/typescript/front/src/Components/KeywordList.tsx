@@ -52,7 +52,7 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
             <tbody>
             <tr
               key={`keyword${keywordIndex}`}
-              onClick={()=>handleKeywordDisplay(keywordIndex, keyword.instance, keyword.synonym)}
+              onClick={()=>handleKeywordDisplay(keywordIndex, keyword.instance, keyword.synset)}
             >
               <td colSpan={3}>
                     <span
@@ -78,7 +78,7 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
               }}>
               <td colSpan={5}>
                 <div className={`${styles.keywordList}`}>
-                  {keyword.synonym.map((synonym, synonymIndex) => (
+                  {keyword.synset.map((synonym, synonymIndex) => (
                     <li>
                           <span
                             key={ `keywordsyn${keywordIndex}${synonymIndex}`}

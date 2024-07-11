@@ -1,12 +1,11 @@
 import React, { MouseEvent, MutableRefObject } from 'react';
 import { Box } from './Upload';
-import {
-  handleBoxMouseDown,
-  handleMouseDown, handleResizeMouseDown
-} from './MouseHandlers';
 import styles from './Upload.module.css';
 import uploadStyles from './uploadStyles';
 
+
+
+// 바운딩 박스 사용자 정의 컴포넌트
 interface BoundBoxesProps {
   newBox?: Box;
   boxes: Box[];

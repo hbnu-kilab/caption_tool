@@ -10,6 +10,7 @@ interface CorrectCaptionProps {
   setBoxes: React.Dispatch<React.SetStateAction<Box[]>>;
 }
 
+// floating box
 const BoundBoxNavigation: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) => {
   return (
     <Draggable>
@@ -25,16 +26,6 @@ const BoundBoxNavigation: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) 
                   <td>
                     <span>{boxIndex}</span>
                   </td>
-                  {/* <td className={`${styles.hovering} ${box.entity.length>0? "":styles.fontRed}`}>
-                          <span id={`entity${boxIndex}`}
-                          onClick={() => handleEntityDisplay(boxIndex, box.entity[0])}>{box.entity.length>0?`${box.entity[0]}   ▼`:'none   ▼'}</span>
-                          <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                        </td> */}
-                  {/* <td>
-                          <button onClick={() => handleBoxClick(boxIndex, setBoxes)} className={`${styles.addBtn}`}>
-                            + Caption
-                          </button>
-                        </td> */}
                   <td>
                     <button onClick={() => handleDeleteClick(boxIndex, setBoxes)} className={`${styles.delBtn}`}>
                       Delete
