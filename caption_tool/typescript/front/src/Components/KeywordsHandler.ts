@@ -6,15 +6,15 @@ interface Box {
   y: number; // 좌측 상단 꼭지점 y 좌표
   height: number; // 박스 높이
   width: number; // 박스 너비
-  entity: string[]; // 감지된 물체들의 이름
   captions: string[]; // correct caption
   errorCaptions: string[][]; // error caption
 }
 
-interface Keyword {
+export interface Keyword {
   instance: string; // 키워드
-  synonym: string[]; // 동의어
-  antonym: string[]; // 반의어 <- etri에선 몰라야함ㅋㅋ
+  synset: string[]; // 동의어
+  nearest_ancestor: string; // 부모 노드 키워드
+  unique_beginner: string; // unique beginner
 }
 
 
@@ -37,7 +37,7 @@ export const SynonymClick = (synonym: string, keywordsIndex:number, synonymIndex
     if (/^\s*$/.test(ans)) return; // space바만 입력되어있으면 return    
     setKeywords((prevKeywords) => { // ans값으로 entity 수정
       const newKeywords = [...prevKeywords];
-      newKeywords[keywordsIndex].synonym[synonymIndex] = ans;
+      newKeywords[keywordsIndex].synset[synonymIndex] = ans;
       return newKeywords; // entity 수정된 boxes arr 반환
     });
   };
@@ -48,7 +48,7 @@ export const addSynonymClick = (keywordsIndex:number, setKeywords: Dispatch<SetS
     if (/^\s*$/.test(ans)) return; // space바만 입력되어있으면 return    
     setKeywords((prevKeywords) => { // ans값으로 entity 수정
       const newKeywords = [...prevKeywords];
-      newKeywords[keywordsIndex].synonym.push(ans);
+      newKeywords[keywordsIndex].synset.push(ans);
       return newKeywords; // entity 수정된 boxes arr 반환
     });
   };
@@ -63,8 +63,9 @@ export const addSynonymClick = (keywordsIndex:number, setKeywords: Dispatch<SetS
       const newKeywords = [...prevKeywords];
       newKeywords.push({
         instance: ans, // 키워드
-        synonym: [], // 동의어
-        antonym: [] // 반의어 <- etri에선 몰라야함ㅋㅋ
+        synset: [], // 동의어
+        nearest_ancestor: "", // 부모 노드 키워드
+        unique_beginner: "", // unique beginner
       });
       return newKeywords; // entity 수정된 boxes arr 반환
     });
@@ -89,7 +90,7 @@ export const delKeywordClick = (keyword:string, keywordsIndex:number, setKeyword
   
     setKeywords((prevKeywords) => { // ans값으로 keyword 수정
       const newKeywords = [...prevKeywords];
-      newKeywords[keywordsIndex].synonym.splice(synonymIndex,1)
+      newKeywords[keywordsIndex].synset.splice(synonymIndex,1)
       return newKeywords; // keyword 수정된 keyword arr 반환
     });
   };

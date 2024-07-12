@@ -16,6 +16,29 @@ interface KeywordListProps {
 
 const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
 
+  // 키워드 클러스터 만들기 위함(웹에서 보여주는 데에만 쓸 거임)
+  // 특정 키 값을 기준으로 객체들을 그룹화하는 함수
+  function groupBy(array:any, key:string) {
+    return array.reduce((result:any, currentValue:any) => {
+        // 현재 객체의 키 값을 가져옴
+        const keyValue = currentValue[key];
+        
+        // 결과 객체에 키 값에 해당하는 배열이 없으면 생성
+        if (!result[keyValue]) {
+            result[keyValue] = [];
+        }
+        
+        // 현재 객체를 해당 키 값의 배열에 추가
+        result[keyValue].push(currentValue);
+        
+        return result;
+    }, {});
+  }
+
+// 'unique_beginner' 키 값을 기준으로 객체들을 그룹화
+const groupedkeywords = groupBy(keywords, 'unique_beginner');
+  console.log(groupedkeywords)
+
   const handleKeywordDisplay = (index:number, keywordInstance:string, synonym:string[]) => {
     let keyword = document.getElementById(`keyword${index}`);
     let keywordsyn = document.getElementById(`keywordsyn${index}`);
@@ -24,13 +47,13 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
     if (keyword !== null && keywordsyn!== null){
       if (keywordsyn.style.display === 'none'){
         keywordsyn.style.display = 'table-row';
-        if (keyword.innerHTML !== 'none   ▼') keyword.innerHTML =  `${keywordInstance}   ▲`
-        else keyword.innerHTML =  `none   ▲`
+        if (keyword.innerHTML !== 'none') keyword.innerHTML =  `${keywordInstance}`
+        else keyword.innerHTML =  `none`
       }
       else {
         keywordsyn.style.display = 'none'
-        if (keyword.innerHTML !== 'none   ▲') keyword.innerHTML = `${keywordInstance}   ▼`
-        else keyword.innerHTML =  `none   ▼`
+        if (keyword.innerHTML !== 'none') keyword.innerHTML = `${keywordInstance}`
+        else keyword.innerHTML =  `none`
 
       }
     }
@@ -52,13 +75,15 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
             <tbody>
             <tr
               key={`keyword${keywordIndex}`}
-              onClick={()=>handleKeywordDisplay(keywordIndex, keyword.instance, keyword.synonym)}
+              onClick={()=>handleKeywordDisplay(keywordIndex, keyword.unique_beginner, keyword.synset)}
             >
-              <td colSpan={3}>
-                    <span
-                      id={`keyword${keywordIndex}`}
-                      className={`${styles.hovering}`}
-                    >{`${keyword.instance}   ▼`}</span>
+              <td colSpan={3} className={`${styles.hovering}`}>
+                <span
+                  id={`keyword${keywordIndex}`}
+                >{(keyword.unique_beginner === "")? "none":  (keyword.unique_beginner)}</span>
+                <br />
+                <span>{(keyword.nearest_ancestor === "")? "--- none": `--- ${keyword.nearest_ancestor}`}</span>
+                <br /><span>{`------ ${keyword.instance}`}</span>
               </td>
               <td><button
                 className={`${styles.displayBtn}`}
@@ -78,16 +103,18 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
               }}>
               <td colSpan={5}>
                 <div className={`${styles.keywordList}`}>
-                  {keyword.synonym.map((synonym, synonymIndex) => (
+                  {keyword.synset.map((synonym, synonymIndex) => (
                     <li>
-                          <span
+                      <span
                             key={ `keywordsyn${keywordIndex}${synonymIndex}`}
                             className={`${styles.hovering}`}
                             onClick={()=> SynonymClick(synonym,keywordIndex,synonymIndex,setKeywords)}
-                          >{synonym}</span> <button
-                      onClick={()=>delSynonymClick(synonym, keywordIndex,synonymIndex,setKeywords)}
-                      className={`${styles.delBtn}`}
-                    >delete</button></li>
+                          >{synonym}</span> 
+                          <button
+                            onClick={()=>delSynonymClick(synonym, keywordIndex,synonymIndex,setKeywords)}
+                            className={`${styles.delBtn}`}
+                          >delete</button>                    
+                    </li>
                   ))}
                   <button onClick = {()=>addSynonymClick(keywordIndex, setKeywords)}
                           className={`${styles.addEntity}`}>+ Synonym</button>

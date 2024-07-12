@@ -4,12 +4,12 @@ import { Box } from './Upload';
 
 const uploadStyles = {
   newBoundBox: (box: Box): CSSProperties =>  ({
-    border: '2px solid red',
+      position: 'absolute',
+      border: '2px solid red',
       left: box?.x,
       top: box?.y,
       width: box?.width,
       height: box?.height,
-      position: 'absolute',
   }),
   boundBox: (box: Box): CSSProperties => ({
     position: 'absolute',
