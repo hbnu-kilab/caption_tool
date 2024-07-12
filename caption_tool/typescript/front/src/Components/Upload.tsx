@@ -88,11 +88,11 @@ const Upload: React.FC = () => {
   const { src: imageId } = useParams<{ src: string }>(); // url에서 src 파라미터를 받아옴, 현 페이지에서는 imageId라고 부를거임
   const [imageUrl, setImageUrl] = useState<string>(''); // 이미지 url
 
-    interface OriginalJsonType {
-        [key: string]: any; // 기존 JSON 데이터의 키가 무엇이든 상관없이 모두 any 타입으로 지정
-    }
+  interface OriginalJsonType {
+    [key: string]: any; // 기존 JSON 데이터의 키가 무엇이든 상관없이 모두 any 타입으로 지정
+  }
 
-    const [originalJson, setOriginalJson] = useState<OriginalJsonType>({});
+  const [originalJson, setOriginalJson] = useState<OriginalJsonType>({});
 
   //const [originalJson, setOriginalJson] = useState({});
 
@@ -109,7 +109,6 @@ const Upload: React.FC = () => {
         console.log({ key })
         setOriginalJson(data[key]); // 기존 JSON 데이터를 상태로 저장
         setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
-
 
         // narrative 데이터를 long caption에 추가
         let longCaptionString:string = data[key].image_data.localizednarratives[0].caption // narrative caption 가져오기
@@ -144,7 +143,7 @@ const Upload: React.FC = () => {
       .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
   }, [imageId]);
 
-  // selectedSegment가 변할때 재 실행 되는 useEffect
+  // selectedSegment들이 변할때 재 실행 되는 useEffect
   useEffect(() => {
     console.log(2)
     fetch(`/json/splitJson/split_json_${imageId}.json`)
@@ -160,7 +159,6 @@ const Upload: React.FC = () => {
       if (textarea) {
         textarea.value = longCaption;
       }
-
       
       // longCaptionList 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
       if (selectedLongCaptionSegment.length < longCaptionList.length) {
@@ -169,13 +167,11 @@ const Upload: React.FC = () => {
       }
 
       let coco_caption: string[] = data[key].image_data.coco_caption
-
       // longCaptionList 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
       if (selectedCocoCaptionSegment.length < coco_caption.length) {
         const newSelectedSegment = Array(coco_caption.length).fill(false);
         setSelectedCocoCaptionSegment(newSelectedSegment);
       }
-
 
       // segment caption 리스트 생성
       const captionList = longCaptionList.map((caption, index) => (
