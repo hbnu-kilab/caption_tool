@@ -225,24 +225,21 @@ const Upload: React.FC = () => {
     const saveButton = () => {
         const updatedJson = {
             ...originalJson, // 기존 JSON 데이터 유지
-            new_bounding_boxes: boxes.reduce((acc: any, box, index) => {
-                acc[index] = {
-                    x: box.x,
-                    y: box.y,
-                    width: box.width,
-                    height: box.height,
-                    caption: box.captions.reduce((captionAcc: any, caption, captionIndex) => {
-                        captionAcc[caption] = { errorCaption: box.errorCaptions[captionIndex] };
-                        return captionAcc;
-                    }, {})
-                };
-                return acc;
-            }, {}),
+            new_bounding_boxes: boxes.map((box) => ({
+                x: box.x,
+                y: box.y,
+                width: box.width,
+                height: box.height,
+                caption: box.captions.reduce((captionAcc: any, caption, captionIndex) => {
+                    captionAcc[caption] = { errorCaption: box.errorCaptions[captionIndex] };
+                    return captionAcc;
+                }, {})
+            })),
             new_keywords: keywords.reduce((acc: any, keyword) => {
                 acc[keyword.instance] = {
                     synset: keyword.synset,
-                    nearest_ancestor: "", // hyponym 데이터가 있는 경우, 여기에 추가하세요.
-                    unique_beginner: ""
+                    nearest_ancestor: keyword.nearest_ancestor,
+                    unique_beginner: keyword.unique_beginner
                 };
                 return acc;
             }, {})
@@ -267,6 +264,7 @@ const Upload: React.FC = () => {
                 alert('저장 중 오류가 발생했습니다.');
             });
     };
+
 
 
     // ==============================================================================================
