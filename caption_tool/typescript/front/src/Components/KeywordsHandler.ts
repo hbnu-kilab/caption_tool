@@ -51,6 +51,13 @@ export const SynonymClick = (
   if (/^\s*$/.test(ans)) return; // space바만 입력되어있으면 return
   setKeywords((prevKeywords) => {
     const newKeywords = [...prevKeywords];
+    if(synonym!==""){
+      prevKeywords[keywordsIndex].synset[synonymIndex] = synonym
+    } 
+    else if((synonym==="")&&(synonymIndex===0)){
+      prevKeywords[keywordsIndex].synset = [] 
+    }
+
     setHistory((prevHistory) => [
       ...prevHistory,
       JSON.parse(JSON.stringify(prevKeywords)), // 이전 상태를 깊은 복사로 저장
