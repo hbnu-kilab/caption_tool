@@ -48,21 +48,64 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
     };
 
     // 동의어 추가 클릭 시 처리하는 함수
-    const handleAddSynonymClick = (keywordIndex: number) => {
-        console.log(`Adding synonym for keywordIndex: ${keywordIndex}`);
-        addSynonymClick(keywordIndex, setKeywords);
+    const handleAddSynonymClick = (uniqueBeginner: string, nearestAncestor: string, instance: string) => {
+        const keywordIndex = keywords.findIndex(
+            (kw) => kw.unique_beginner === uniqueBeginner && kw.nearest_ancestor === nearestAncestor && kw.instance === instance
+        );
+        if (keywordIndex !== -1) {
+            console.log(`Adding synonym for keywordIndex: ${keywordIndex}`);
+            addSynonymClick(keywordIndex, setKeywords);
+        }
     };
 
     // 키워드 삭제 클릭 시 처리하는 함수
-    const handleDeleteKeywordClick = (instance: string, keywordIndex: number) => {
-        console.log(`Deleting keyword: ${instance} at index: ${keywordIndex}`);
-        delKeywordClick(instance, keywordIndex, setKeywords);
+    const handleDeleteKeywordClick = (uniqueBeginner: string, nearestAncestor: string, instance: string) => {
+        const keywordIndex = keywords.findIndex(
+            (kw) => kw.unique_beginner === uniqueBeginner && kw.nearest_ancestor === nearestAncestor && kw.instance === instance
+        );
+        if (keywordIndex !== -1) {
+            console.log(`Deleting keyword: ${instance} at index: ${keywordIndex}`);
+            delKeywordClick(instance, keywordIndex, setKeywords);
+        }
     };
 
     // 동의어 삭제 클릭 시 처리하는 함수
-    const handleDeleteSynonymClick = (synonym: string, keywordIndex: number, synonymIndex: number) => {
-        console.log(`Deleting synonym: ${synonym} for keywordIndex: ${keywordIndex} at synonymIndex: ${synonymIndex}`);
-        delSynonymClick(synonym, keywordIndex, synonymIndex, setKeywords);
+    const handleDeleteSynonymClick = (uniqueBeginner: string, nearestAncestor: string, instance: string, synonym: string) => {
+        const keywordIndex = keywords.findIndex(
+            (kw) => kw.unique_beginner === uniqueBeginner && kw.nearest_ancestor === nearestAncestor && kw.instance === instance
+        );
+        if (keywordIndex !== -1) {
+            const synonymIndex = keywords[keywordIndex].synset.indexOf(synonym);
+            if (synonymIndex !== -1) {
+                console.log(`Deleting synonym: ${synonym} for keywordIndex: ${keywordIndex} at synonymIndex: ${synonymIndex}`);
+                delSynonymClick(synonym, keywordIndex, synonymIndex, setKeywords);
+            }
+        }
+    };
+
+    // 동의어 수정 클릭 시 처리하는 함수
+    const handleModifySynonymClick = (uniqueBeginner: string, nearestAncestor: string, instance: string, synonym: string) => {
+        const keywordIndex = keywords.findIndex(
+            (kw) => kw.unique_beginner === uniqueBeginner && kw.nearest_ancestor === nearestAncestor && kw.instance === instance
+        );
+        if (keywordIndex !== -1) {
+            const synonymIndex = keywords[keywordIndex].synset.indexOf(synonym);
+            if (synonymIndex !== -1) {
+                console.log(`Modifying synonym: ${synonym} for keywordIndex: ${keywordIndex} at synonymIndex: ${synonymIndex}`);
+                SynonymClick(synonym, keywordIndex, synonymIndex, setKeywords);
+            }
+        }
+    };
+
+    // 키워드 수정 클릭 시 처리하는 함수
+    const handleModifyKeywordClick = (uniqueBeginner: string, nearestAncestor: string, instance: string) => {
+        const keywordIndex = keywords.findIndex(
+            (kw) => kw.unique_beginner === uniqueBeginner && kw.nearest_ancestor === nearestAncestor && kw.instance === instance
+        );
+        if (keywordIndex !== -1) {
+            console.log(`Modifying keyword: ${instance} at index: ${keywordIndex}`);
+            KeywordClick(instance, keywordIndex, setKeywords);
+        }
     };
 
     return (
@@ -78,20 +121,47 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
                             <tr>
                                 <td colSpan={5}><strong>{uniqueBeginner === "" ? "none" : uniqueBeginner}</strong></td>
                             </tr>
-                            {Object.entries(groupBy(Object.values(groupedByUniqueBeginner[uniqueBeginner]),'nearest_ancestor')).map(([nearest_ancestor, Keywords], KeywordsIndex) => (
-                                <React.Fragment key={`${nearest_ancestor}${uniqueBeginnerIndex}${KeywordsIndex}`}>
+                            {Object.entries(groupBy(Object.values(groupedByUniqueBeginner[uniqueBeginner]), 'nearest_ancestor')).map(([nearestAncestor, nestedKeywords], nearestAncestorIndex) => (
+                                <React.Fragment key={`${nearestAncestor}${uniqueBeginnerIndex}${nearestAncestorIndex}`}>
                                     <tr>
-                                        <td colSpan={5} style={{ paddingLeft: '20px' }}><strong className={`${styles.hovering}`}>{nearest_ancestor === ""? "none" : nearest_ancestor}</strong></td>
+                                        <td colSpan={5} style={{ paddingLeft: '20px' }}><strong className={`${styles.hovering}`}>{nearestAncestor === "" ? "none" : nearestAncestor}</strong></td>
                                     </tr>
-                                    {Keywords.map((Keyword, KeywordIndex) => (
-                                        <React.Fragment key={`${nearest_ancestor}${uniqueBeginnerIndex}${KeywordIndex}`}>
-                                            <tr>
-                                                <td colSpan={5} style={{ paddingLeft: '40px' }}><span 
-                                                                                                className={`${styles.hovering}`}
-                                                                                                onClick={()=>handleKeywordDisplay(uniqueBeginner,nearest_ancestor,Keyword.instance)}>{Keyword.instance}</span></td>
-                                            </tr>
-                                        </React.Fragment>
-                                    ))}
+                                    {nestedKeywords.map((keyword, keywordIndex) => {
+                                        const key = `${uniqueBeginner}-${nearestAncestor}-${keyword.instance}`;
+                                        return (
+                                            <React.Fragment key={`${nearestAncestor}${uniqueBeginnerIndex}${keywordIndex}`}>
+                                                <tr>
+                                                    <td colSpan={3} style={{ paddingLeft: '40px' }}>
+                                                        <span className={`${styles.hovering}`} onClick={() => handleKeywordDisplay(uniqueBeginner, nearestAncestor, keyword.instance)}>
+                                                            {keyword.instance}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ width: '80px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+                                                        <button className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleModifyKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>modify</button>
+                                                        <button className={styles.delBtn} onClick={(e) => { e.stopPropagation(); handleDeleteKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>delete</button>
+                                                    </td>
+                                                </tr>
+                                                {expandedKeywords[key] && (
+                                                    <tr>
+                                                        <td colSpan={5} style={{ paddingTop: '5px', paddingBottom: '5px' }}>
+                                                            <div className={styles.keywordList}>
+                                                                {keyword.synset.map((synonym, synonymIndex) => (
+                                                                    <div key={synonymIndex} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px', paddingLeft: '40px' }}>
+                                                                        <span className={styles.hovering} onClick={() => handleModifySynonymClick(uniqueBeginner, nearestAncestor, keyword.instance, synonym)}>{synonym}</span>
+                                                                        <div style={{ display: 'flex', gap: '10px', marginRight: '35px' }}>
+                                                                            <button className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleModifySynonymClick(uniqueBeginner, nearestAncestor, keyword.instance, synonym); }}>modify</button>
+                                                                            <button className={styles.delBtn} onClick={(e) => { e.stopPropagation(); handleDeleteSynonymClick(uniqueBeginner, nearestAncestor, keyword.instance, synonym); }}>delete</button>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                                <button onClick={(e) => { e.stopPropagation(); handleAddSynonymClick(uniqueBeginner, nearestAncestor, keyword.instance); }} className={`${styles.addEntity} ${styles.synonymBtn}`} style={{ marginLeft: '60px' }}>+ Synonym</button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </React.Fragment>
+                                        );
+                                    })}
                                 </React.Fragment>
                             ))}
                         </React.Fragment>
