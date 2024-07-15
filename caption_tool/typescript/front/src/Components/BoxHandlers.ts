@@ -44,12 +44,12 @@ export  const handleBoxDisplay = (index:number) => {
       if (box.style.display === 'none'){
         box.style.display = 'inline'
         displayBtn.style.backgroundColor = 'rgb(29, 31, 37)'
-        displayBtn.innerHTML = "ON"
+        displayBtn.innerHTML = "on"
       }
       else {
         box.style.display = 'none'
         displayBtn.style.backgroundColor = 'rgb(172, 176, 185)'
-        displayBtn.innerHTML = "OFF"
+        displayBtn.innerHTML = "off"
 
       }
     }

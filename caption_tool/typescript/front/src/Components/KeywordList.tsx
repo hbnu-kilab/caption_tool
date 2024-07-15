@@ -207,10 +207,10 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
                                                             {keyword.instance}
                                                         </span>
                                                     </td>
-                                                    <td style={{ width: '200px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-                                                        <button className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleMoveKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>{movingKeyword && movingKeyword.instance === keyword.instance ? 'cancel' : 'move'}</button>
-                                                        <button className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleModifyKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>modify</button>
-                                                        <button className={styles.delBtn} onClick={(e) => { e.stopPropagation(); handleDeleteKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>delete</button>
+                                                    <td style={{ width: '150px', display: 'flex', justifyContent: 'space-between', gap: '7px' }}>
+                                                        <button style={movingKeyword && movingKeyword.instance === keyword.instance?{backgroundColor: "rgb(53, 76, 194)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "20px"}:{backgroundColor: "rgb(29, 31, 37)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "20px"}} className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleMoveKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>{movingKeyword && movingKeyword.instance === keyword.instance ? 'cancel' : 'move'}</button>
+                                                        <button style={{margin:"0 0"}} className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleModifyKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>modify</button>
+                                                        <button style={{margin:"0 0"}} className={styles.delBtn} onClick={(e) => { e.stopPropagation(); handleDeleteKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>delete</button>
                                                     </td>
                                                 </tr>
                                                 {expandedKeywords[key] && (

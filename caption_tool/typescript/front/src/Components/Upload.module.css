@@ -215,6 +215,14 @@ hr{
     padding: 5px 7px;
     border-radius: 20px;
 }
+.movingBtn{
+    background-color: rgb(53, 76, 194);
+    color: white;
+    border: 0;
+    margin-left: 10px;
+    padding: 5px 7px;
+    border-radius: 20px;
+}
 .displayBtn{
     background-color: rgb(29, 31, 37);
     color: white;
