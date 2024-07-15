@@ -337,3 +337,26 @@ hr{
     width: calc(100%-20px);
 }
 
+/* ====================================================== */
+/* keyword moving */
+
+.movingKeyword {
+    font-weight: bold;
+    color: darkblue;
+}
+
+.hoveringNearestAncestor:hover {
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+.undoButton {
+    margin-left: 10px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+
+
