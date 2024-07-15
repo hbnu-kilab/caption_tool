@@ -54,7 +54,7 @@ const BoundBoxNavigation: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) 
                     <button id={`displayBtn${boxIndex}`} onClick={() => handleBoxDisplay(boxIndex)} className={`${styles.displayBtn}`}>
                       on
                     </button>
-                    <button onClick={() => moveBox(boxIndex)} id={`moveBtn${boxIndex}`} style={boxIndex === firstBoxIndex?{backgroundColor: "rgb(53, 76, 194)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "20px"}:{backgroundColor: "rgb(29, 31, 37)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "20px"}} className={`(${styles.displayBtn}`}> 
+                    <button onClick={() => moveBox(boxIndex)} id={`moveBtn${boxIndex}`} style={boxIndex === firstBoxIndex?{backgroundColor: "rgb(53, 76, 194)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "5px"}:{backgroundColor: "rgb(29, 31, 37)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "5px"}} className={`(${styles.displayBtn}`}> 
                       {boxIndex === firstBoxIndex?"cancel":"move"}
                     </button>
                   </td>

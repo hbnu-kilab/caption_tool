@@ -166,7 +166,7 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
             <br />
             <div className={`${styles.keywordSet} ${styles.radius}`}>
                 <table style={{ width: '100%', tableLayout: 'fixed' }}>
-                    {Object.keys(groupedByUniqueBeginner).map((uniqueBeginner, uniqueBeginnerIndex) => (
+                    {Object.keys(groupedByUniqueBeginner).sort().map((uniqueBeginner, uniqueBeginnerIndex) => (
                         <React.Fragment key={`${uniqueBeginner}${uniqueBeginnerIndex}`}>
                             <tr>
                                 <td colSpan={5}><strong>{uniqueBeginner === "" ? "none" : uniqueBeginner}</strong></td>
@@ -207,8 +207,8 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
                                                             {keyword.instance}
                                                         </span>
                                                     </td>
-                                                    <td style={{ width: '150px', display: 'flex', justifyContent: 'space-between', gap: '7px' }}>
-                                                        <button style={movingKeyword && movingKeyword.instance === keyword.instance?{backgroundColor: "rgb(53, 76, 194)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "20px"}:{backgroundColor: "rgb(29, 31, 37)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "20px"}} className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleMoveKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>{movingKeyword && movingKeyword.instance === keyword.instance ? 'cancel' : 'move'}</button>
+                                                    <td style={{ width: '150px', display: 'flex', justifyContent: 'space-between', gap: '5px' }}>
+                                                        <button style={movingKeyword && movingKeyword.instance === keyword.instance?{backgroundColor: "rgb(53, 76, 194)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "5px"}:{backgroundColor: "rgb(29, 31, 37)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "5px"}} className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleMoveKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>{movingKeyword && movingKeyword.instance === keyword.instance ? 'cancel' : 'move'}</button>
                                                         <button style={{margin:"0 0"}} className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleModifyKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>modify</button>
                                                         <button style={{margin:"0 0"}} className={styles.delBtn} onClick={(e) => { e.stopPropagation(); handleDeleteKeywordClick(uniqueBeginner, nearestAncestor, keyword.instance); }}>delete</button>
                                                     </td>
@@ -219,7 +219,7 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
                                                             <div className={styles.keywordList}>
                                                                 {keyword.synset.map((synonym, synonymIndex) => (
                                                                     <div key={synonymIndex} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px', paddingLeft: '60px' }}>
-                                                                        <span className={styles.hovering} onClick={() => handleModifySynonymClick(uniqueBeginner, nearestAncestor, keyword.instance, synonym)}>{synonym}</span>
+                                                                        <span className={styles.hovering} >{synonym}</span>
                                                                         <div style={{ display: 'flex', gap: '10px', marginRight: '90px' }}>
                                                                             <button className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleModifySynonymClick(uniqueBeginner, nearestAncestor, keyword.instance, synonym); }}>modify</button>
                                                                             <button className={styles.delBtn} onClick={(e) => { e.stopPropagation(); handleDeleteSynonymClick(uniqueBeginner, nearestAncestor, keyword.instance, synonym); }}>delete</button>
