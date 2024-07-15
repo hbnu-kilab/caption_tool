@@ -73,14 +73,14 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) => {
                     box.captions.map((caption, captionIndex) => (
                       <tr key={`correctCaption${seletedBox}${captionIndex}`} className={`${styles.hovering}`}>
                         <td>
-                                <span onClick={() => handleCaptionClick(seletedBox, captionIndex, caption, setBoxes)}>
-                                  ({seletedBox}-{captionIndex})
-                                </span>
+                          <span onClick={() => handleCaptionClick(seletedBox, captionIndex, caption, setBoxes)}>
+                            ({seletedBox}-{captionIndex})
+                          </span>
                         </td>
                         <td>
-                                <span onClick={() => handleCaptionClick(seletedBox, captionIndex, caption, setBoxes)}>
-                                  {caption}
-                                </span>
+                          <span onClick={() => handleCaptionClick(seletedBox, captionIndex, caption, setBoxes)}>
+                            {caption}
+                          </span>
                         </td>
                         <td><button
                           onClick={()=>delCaptionClick(seletedBox, captionIndex, setBoxes)}> X </button>
