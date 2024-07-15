@@ -5,7 +5,6 @@ interface Box {
   y: number; // 좌측 상단 꼭지점 y 좌표
   height: number; // 박스 높이
   width: number; // 박스 너비
-  entity: string[]; // 감지된 물체들의 이름
   captions: string[]; // correct caption
   errorCaptions: string[][]; // error caption
 }
@@ -69,7 +68,6 @@ export const handleMouseMove = (
       y: Math.min(startY, y), 
       height: Math.abs(startY - y),
       width: Math.abs(startX - x),
-      entity: [],
       captions: [],
       errorCaptions: [],
     });
@@ -116,7 +114,6 @@ export const handleMouseUp = (
   setNewBox: React.Dispatch<React.SetStateAction<Box | null>>,
   movingBoxIndex: number | null,
   setMovingBoxIndex: React.Dispatch<React.SetStateAction<number | null>>,
-  handleBoxCreate: (index: number, setBoxes: React.Dispatch<React.SetStateAction<Box[]>>) => void
 ) => {
   if (isResizing) {
     setIsResizing(false);
@@ -125,7 +122,7 @@ export const handleMouseUp = (
     if (newBox.width > 2 && newBox.height > 2) {
       setBoxes(prevBoxes => {
         let updatedBoxes = [...prevBoxes, newBox];
-        setTimeout(() => handleBoxCreate(updatedBoxes.length - 1, setBoxes), 0);
+        // setTimeout(() => handleBoxCreate(updatedBoxes.length - 1, setBoxes), 0);
         // console.log(updatedBoxes[updatedBoxes.length-1].entity.length)
         // if (updatedBoxes[updatedBoxes.length-1].entity.length === 0) updatedBoxes.pop()
         return updatedBoxes;

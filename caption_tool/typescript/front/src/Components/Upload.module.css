@@ -101,6 +101,7 @@ h3 > b {
 }
 .saveButton {
     padding: 0px 10px;
+    margin-right: 30px;
     font-size: 1rem;
     font-weight: 700;
     border: 0;
@@ -111,6 +112,7 @@ h3 > b {
     /* color: rgb(172, 176, 185); */
     /* font-weight: 900; */
     padding: -3px 10px;
+    margin-right: 30px;
     font-size: 1.1rem;
     /* text-shadow: -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white; */
 }
@@ -207,6 +209,14 @@ hr{
 }
 .delBtn{
     background-color: rgb(220, 27, 20);
+    color: white;
+    border: 0;
+    margin-left: 10px;
+    padding: 5px 7px;
+    border-radius: 20px;
+}
+.movingBtn{
+    background-color: rgb(53, 76, 194);
     color: white;
     border: 0;
     margin-left: 10px;
@@ -334,4 +344,27 @@ hr{
     padding: 10PX;
     width: calc(100%-20px);
 }
+
+/* ====================================================== */
+/* keyword moving */
+
+.movingKeyword {
+    font-weight: bold;
+    color: darkblue;
+}
+
+.hoveringNearestAncestor:hover {
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+.undoButton {
+    margin-left: 10px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+
 

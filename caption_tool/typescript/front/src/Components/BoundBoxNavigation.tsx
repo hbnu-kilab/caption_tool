@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Draggable from 'react-draggable';
 import styles from './Upload.module.css';
 import { handleBoxDisplay, handleDeleteClick } from './BoxHandlers';
@@ -10,7 +10,32 @@ interface CorrectCaptionProps {
   setBoxes: React.Dispatch<React.SetStateAction<Box[]>>;
 }
 
+// floating box
 const BoundBoxNavigation: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) => {
+
+  const [firstBoxIndex, setFirstBoxIndex] = useState<number | null>(null); // 현재 리사이징 되려는 첫 번째 박스 인덱스
+  const [lastBoxIndex, setLastBoxIndex] = useState<number | null>(null);  // 현재 리사이징 되고 있는 마지막 박스 인덱스
+
+  const moveBox = (boxIndex: number) => {
+    if (firstBoxIndex !== null) {
+      // 첫번째 인덱스와 같으면
+      if (firstBoxIndex === boxIndex) {
+        setFirstBoxIndex(null);
+      } else {
+        boxes[firstBoxIndex].captions.map((caption, captionIndex)=>(
+          boxes[boxIndex].captions.push(caption)
+        ))
+        boxes[firstBoxIndex].errorCaptions.map((errorCaption, errorCaptionIndex)=>(
+          boxes[boxIndex].errorCaptions.push(errorCaption)
+        ))
+        handleDeleteClick(firstBoxIndex, setBoxes)
+        setFirstBoxIndex(null);
+      }
+    } else {
+      setFirstBoxIndex(boxIndex);
+    }
+    };
+
   return (
     <Draggable>
       <div className={`${styles.draggable} ${styles.floatingBar}`}>
@@ -25,24 +50,17 @@ const BoundBoxNavigation: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) 
                   <td>
                     <span>{boxIndex}</span>
                   </td>
-                  {/* <td className={`${styles.hovering} ${box.entity.length>0? "":styles.fontRed}`}>
-                          <span id={`entity${boxIndex}`}
-                          onClick={() => handleEntityDisplay(boxIndex, box.entity[0])}>{box.entity.length>0?`${box.entity[0]}   ▼`:'none   ▼'}</span>
-                          <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                        </td> */}
-                  {/* <td>
-                          <button onClick={() => handleBoxClick(boxIndex, setBoxes)} className={`${styles.addBtn}`}>
-                            + Caption
-                          </button>
-                        </td> */}
                   <td>
-                    <button onClick={() => handleDeleteClick(boxIndex, setBoxes)} className={`${styles.delBtn}`}>
-                      Delete
+                    <button id={`displayBtn${boxIndex}`} onClick={() => handleBoxDisplay(boxIndex)} className={`${styles.displayBtn}`}>
+                      on
+                    </button>
+                    <button onClick={() => moveBox(boxIndex)} id={`moveBtn${boxIndex}`} style={boxIndex === firstBoxIndex?{backgroundColor: "rgb(53, 76, 194)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "20px"}:{backgroundColor: "rgb(29, 31, 37)", color: "white", border: "0", marginLeft: "10px", padding: "5px 7px", borderRadius: "20px"}} className={`(${styles.displayBtn}`}> 
+                      {boxIndex === firstBoxIndex?"cancel":"move"}
                     </button>
                   </td>
                   <td>
-                    <button id={`displayBtn${boxIndex}`} onClick={() => handleBoxDisplay(boxIndex)} className={`${styles.displayBtn}`}>
-                      ON
+                    <button onClick={() => handleDeleteClick(boxIndex, setBoxes)} className={`${styles.delBtn}`}>
+                      delete
                     </button>
                   </td>
                 </tr>

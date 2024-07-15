@@ -1,3 +1,8 @@
+node_modules
+.vscode
+.idea
+caption_tool/typescript/front/public/json/*.json <- 이거 한줄로 아래 2000줄 대체가능
+
 caption_tool/typescript/front/public/json/combined_data.json
 caption_tool/typescript/front/public/json/splitJson/split_json_1.json
 caption_tool/typescript/front/public/json/splitJson/split_json_2.json
@@ -2185,3 +2190,4 @@ caption_tool/typescript/front/public/json/splitJson/split_json_2183.json
 caption_tool/typescript/front/public/json/splitJson/split_json_2184.json
 caption_tool/typescript/front/public/json/splitJson/split_json_2185.json
 caption_tool/typescript/front/public/json/splitJson/split_json_2186.json
+.idea

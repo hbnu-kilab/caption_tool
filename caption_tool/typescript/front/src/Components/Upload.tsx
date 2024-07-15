@@ -4,13 +4,14 @@ import uploadStyles from './uploadStyles';
 
 // 이벤트 핸들러 불러오기
 // 이벤트 핸들러란? 사용자의 움직임에 따라 일어나는 함수
-import { handleBoxCreate, handleBoxClick, handleDeleteClick, handleBoxDisplay } from './BoxHandlers';
+import { handleBoxClick, handleDeleteClick, handleBoxDisplay } from './BoxHandlers';
 import { handleAddCaption, handleAddErrorCaption, handleCaptionClick, handleErrorCaptionClick, delCaptionClick, delErrorCaptionClick } from './CaptionHandler';
 import { SegmentClick } from './SegmentHandler';
-import { KeywordClick, SynonymClick, 
+import { KeywordClick, SynonymClick,
   addKeywordsClick, addSynonymClick,
   delKeywordClick, delSynonymClick
 } from './KeywordsHandler';
+
 import {
   handleMouseDown,
   handleMouseMove,
@@ -21,7 +22,6 @@ import {
 
 // ReactDOM, rendering에 사용
 import ReactDOM from 'react-dom';
-import Draggable from 'react-draggable'; // floating bar 만들기 위함
 
 // url parameter 접근을 위함
 import { useParams } from 'react-router-dom';
@@ -35,15 +35,15 @@ export interface Box {
   y: number; // 좌측 상단 꼭지점 y 좌표
   height: number; // 박스 높이
   width: number; // 박스 너비
-  entity: string[]; // 감지된 물체들의 이름
   captions: string[]; // correct caption
   errorCaptions: string[][]; // error caption
 }
 
 export interface Keyword {
   instance: string; // 키워드
-  synonym: string[]; // 동의어
-  antonym: string[]; // 반의어 <- etri에선 몰라야함ㅋㅋ
+  synset: string[]; // 동의어
+  nearest_ancestor: string; // 부모 노드 키워드
+  unique_beginner: string; // unique beginner
 }
 
 /**
@@ -55,25 +55,17 @@ export interface Keyword {
  * @body { jsonIndex: number; json: string }
  * @warning json 데이터셋의 용어 구분, 명칭에 혼란이 있어 임의로 작성되었으니 수정 및 변경 바랍니다.
  */
-interface AddedStates {
-  newBoundingBoxes: Box[];
-  newKeywords: Keyword[];
-}
-
 
 // 본격적인 페이지 코드
 const Upload: React.FC = () => {
   // 리액트의 상태 변수 정의
-  // js는 기본적으로 비동기 방식으로 연결됨. 
+  // js는 기본적으로 비동기 방식으로 연결됨.
   // 따라서 데이터가 변하면 주기적으로 랜더링을 다시 해야하는데, 이 빈도가 잦으면 컴퓨터 자원을 많이 잡아먹음(모든 데이터를 기준으로 랜더링 되게 만들어선 안된다는 소리임)
   // => 리액트에서는 상태변수를 사용, 상태변수가 변할떄 랜더링 하도록 규정해둠
 
   const [boxes, setBoxes] = useState<Box[]>([]); // 박스 array 상태 변수
   // 변경되거나 추가되는 box 요소에 대해 따로 보관하여 JSON 파일에 추가하는 목적의 상태 ( AddedState JSDoc 참고 )
-  const [addedBoxes, setAddedBoxes] = useState<AddedStates>({
-    newBoundingBoxes: [],
-    newKeywords: [],
-  });
+
   const [newBox, setNewBox] = useState<Box | null>(null); // 새로 만드는 박스를 잠시 저장해두는 상태변수
   const [startX, setStartX] = useState<number>(0); // Box.x 가 될 변수
   const [startY, setStartY] = useState<number>(0); // Box.y 가 될 변수
@@ -86,35 +78,45 @@ const Upload: React.FC = () => {
   const [movingBoxIndex, setMovingBoxIndex] = useState<number | null>(null); // 현재 움직이고 있는 박스의 인덱스(boxes array 기준)
   const [resizeIndex, setResizeIndex] = useState<number | null>(null); // 현재 리사이징 되고 있는 박스의 인덱스(boxes array 기준)
 
-  const [selectedSegment, setSelectedSegment] = useState<boolean[]>([]); // caption으로 추가된 segment에 취소선 css를 부여하게 하기 위한 상태변수, 랜더링의 기준
+  const [selectedLongCaptionSegment, setSelectedLongCaptionSegment] = useState<boolean[]>([]); // caption으로 추가된 segment에 취소선 css를 부여하게 하기 위한 상태변수, 랜더링의 기준
+  const [selectedCocoCaptionSegment, setSelectedCocoCaptionSegment] = useState<boolean[]>([]); // caption으로 추가된 segment에 취소선 css를 부여하게 하기 위한 상태변수, 랜더링의 기준
+
   const [longCaption, setlongCaption] = useState<string>('');
 
-  // 리액트에선 html 요소에 직접 접근을 막고, useRef나 react dom을 사용하여 접근하도록 함 
-  const imageRef = useRef<HTMLImageElement>(null); // 이미지 요소에 접근하도록 하는 
+  // 리액트에선 html 요소에 직접 접근을 막고, useRef나 react dom을 사용하여 접근하도록 함
+  const imageRef = useRef<HTMLImageElement>(null); // 이미지 요소에 접근하도록 하는
   const { src: imageId } = useParams<{ src: string }>(); // url에서 src 파라미터를 받아옴, 현 페이지에서는 imageId라고 부를거임
   const [imageUrl, setImageUrl] = useState<string>(''); // 이미지 url
 
+  interface OriginalJsonType {
+    [key: string]: any; // 기존 JSON 데이터의 키가 무엇이든 상관없이 모두 any 타입으로 지정
+  }
+
+  const [originalJson, setOriginalJson] = useState<OriginalJsonType>({});
+
+  //const [originalJson, setOriginalJson] = useState({});
 
   // useEffect: 페이지가 처음 시작될때, 기준이 되는 상태변수가 변할때 재 실행 되는 함수
   // 페이지 시작할 때만 실행되는 useEffect
   useEffect(() => {
     console.log(1)
     // /json/splitJson/split_json_${imageId}.json에서 값을 가져옴
-    fetch(`/json/splitJson/split_json_${imageId}.json`) 
-      .then(response => response.json()) 
+    fetch(`/json/splitJson/split_json_${imageId}.json`)
+      .then(response => response.json())
       .then(data => { // 데이터를 받아오면
         const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
         console.log(data)
         console.log({ key })
+        setOriginalJson(data[key]); // 기존 JSON 데이터를 상태로 저장
         setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
-        
 
-        // narrative 와 cococaption을 합쳐 long caption에 추가
-        let longCaptionString:string = data[key].image_data.localizednarratives[0].caption + data[key].image_data.coco_caption.join('.') // narrative caption 가져오기
+        // narrative 데이터를 long caption에 추가
+        let longCaptionString:string = data[key].image_data.localizednarratives[0].caption // narrative caption 가져오기
         setlongCaption(longCaptionString) // longCaption에 narrative caption 넣기
 
-        let keywordsList:string[] = Object.keys(data[key].new_objects) // 키워드 리스트
-        
+        let keywordsList:string[] = []
+        data['new_keywords'].map((keyword: string, index: number)=>(keywordsList.push((Object.keys(keyword)[0])))) // 키워드 리스트
+
         // json에 있는 바운딩 박스 가져오기
         data[key].new_same_regions.map((object:any)=>(
           boxes.push({
@@ -122,56 +124,30 @@ const Upload: React.FC = () => {
             y: object.avg_y,
             height: object.avg_height,
             width: object.avg_width,
-            entity: Object.keys(object.entity),
             captions: Object.keys(object.phrase),
             errorCaptions: Object.keys(object.phrase).map(item => [item]),
           })
         ))
-        console.log(boxes)
-        
-        boxes.map((box: Box)=>{
-          keywordsList = keywordsList.concat(box.entity)
-        })
+
         console.log(keywordsList)
-
-        let set = new Set(keywordsList)
-        keywordsList = [...set]
-
-        keywordsList.map((keyword: string)=>(
+        keywordsList.map((keyword: string, index: number)=>(
           keywords.push({
             instance: keyword, // 키워드
-            synonym: [], // 동의어
-            antonym: [], // 반의어
+            synset: data['new_keywords'][index][keyword].synset, // 동의어
+            nearest_ancestor: data['new_keywords'][index][keyword].nearest_ancestor, // 부모 노드 키워드
+            unique_beginner: data['new_keywords'][index][keyword].unique_beginner, // unique beginner
           })
         ))
-
-        keywordsList.map((keyword: string) => {
-          keywords.forEach((keywordInstance: Keyword) => {
-            if (keyword !== keywordInstance.instance) {
-              if (keyword.includes(keywordInstance.instance)) {
-                keywordInstance.synonym.push(keyword);
-                // 여기서 for 루프는 let i = 0에서 시작합니다.
-                for (let i = 0; i < keywords.length; i++) {
-                  if (keywords[i].instance === keyword) {
-                    keywords.splice(i, 1);
-                    i--; // splice 후에 인덱스를 줄여줍니다.
-                  }
-                }
-              }
-            }
-          });
-
-          return null; // JSX 엘리먼트가 아닌 경우 null 반환
-        });
+        console.log(keywords)
       })
       .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
-  }, []);
+  }, [imageId]);
 
-  // selectedSegment가 변할때 재 실행 되는 useEffect
+  // selectedSegment들이 변할때 재 실행 되는 useEffect
   useEffect(() => {
     console.log(2)
     fetch(`/json/splitJson/split_json_${imageId}.json`)
-    .then(response => response.json()) 
+    .then(response => response.json())
     .then(data => { // 데이터를 받아오면
       const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
       setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
@@ -183,30 +159,55 @@ const Upload: React.FC = () => {
       if (textarea) {
         textarea.value = longCaption;
       }
-      // cocoCaptions의 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
-      if (selectedSegment.length < longCaptionList.length) {
+      
+      // longCaptionList 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
+      if (selectedLongCaptionSegment.length < longCaptionList.length) {
         const newSelectedSegment = Array(longCaption.length).fill(false);
-        setSelectedSegment(newSelectedSegment);
+        setSelectedLongCaptionSegment(newSelectedSegment);
       }
-      // segment caption 리스트 생성 
+
+      let coco_caption: string[] = data[key].image_data.coco_caption
+      // longCaptionList 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
+      if (selectedCocoCaptionSegment.length < coco_caption.length) {
+        const newSelectedSegment = Array(coco_caption.length).fill(false);
+        setSelectedCocoCaptionSegment(newSelectedSegment);
+      }
+
+      // segment caption 리스트 생성
       const captionList = longCaptionList.map((caption, index) => (
         <tr
           key={`segment${index}`}
           onClick={() => {
-            if (!selectedSegment[index]) {
-              SegmentClick(caption, index, setBoxes, setSelectedSegment);
+            if (!selectedLongCaptionSegment[index]) {
+              SegmentClick(caption, index, setBoxes, setSelectedLongCaptionSegment);
             }
           }}
-          className={`${selectedSegment[index] ? styles.select : ''} ${styles.hovering}`}
+          className={`${selectedLongCaptionSegment[index] ? styles.select : ''} ${styles.hovering}`}
         >
           {caption}
         </tr>
       ));
       ReactDOM.render(<tbody>{captionList}</tbody>, document.getElementById('captionList'));
+
+      // segment caption 리스트 생성
+      const cocoCaptionList = coco_caption.map((caption, index) => (
+        <tr
+          key={`segment${index}`}
+          onClick={() => {
+            if (!selectedLongCaptionSegment[index]) {
+              SegmentClick(caption, index, setBoxes, setSelectedCocoCaptionSegment);
+            }
+          }}
+          className={`${selectedCocoCaptionSegment[index] ? styles.select : ''} ${styles.hovering}`}
+        >
+          {caption}
+        </tr>
+      ));
+      ReactDOM.render(<tbody>{cocoCaptionList}</tbody>, document.getElementById('cocoCaptionList'));
     })
     .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
-    
-  }, [selectedSegment, longCaption]);
+
+  }, [selectedLongCaptionSegment, selectedCocoCaptionSegment, longCaption]);
 
   // =============================================================================================
   // 헤더에 있는 버튼, 이전이나 다음 페이지로 이동 시 현재까지 변경된 사항들이 저장되도록 하기
@@ -221,10 +222,55 @@ const Upload: React.FC = () => {
 
     // 현재까지 변경된 사항들이 저장되도록 하기
   }
-  const saveButton = () =>{
+    const saveButton = () => {
+        const updatedJson = {
+            ...originalJson, // 기존 JSON 데이터 유지
+            new_bounding_boxes: boxes.map((box) => ({
+                x: box.x,
+                y: box.y,
+                width: box.width,
+                height: box.height,
+                captions: box.captions.reduce((captionAcc: any, caption, captionIndex) => {
+                  captionAcc[caption] = {
+                      caption: caption,
+                      errorCaption: box.errorCaptions ? box.errorCaptions[captionIndex] : null
+                  };
+                  return captionAcc;
+              }, {})
+            })),
+            new_keywords: keywords.reduce((acc: any, keyword) => {
+                acc[keyword.instance] = {
+                    synset: keyword.synset,
+                    nearest_ancestor: keyword.nearest_ancestor,
+                    unique_beginner: keyword.unique_beginner
+                };
+                return acc;
+            }, {})
+        };
 
-  }
-  // ==============================================================================================
+        fetch('http://localhost:4000/process', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ jsonIndex: imageId, json: updatedJson }),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    alert('저장되었습니다.');
+                } else {
+                    alert('저장 중 오류가 발생했습니다.');
+                }
+            })
+            .catch((error) => {
+                console.error('저장 중 오류가 발생했습니다:', error);
+                alert('저장 중 오류가 발생했습니다.');
+            });
+    };
+
+
+
+    // ==============================================================================================
 
 
   const onHandleMouseMove = (e: MouseEvent<HTMLDivElement>) =>
@@ -256,7 +302,6 @@ const Upload: React.FC = () => {
       setNewBox,
       movingBoxIndex,
       setMovingBoxIndex,
-      handleBoxCreate
     );
 
   const saveLongcaption = () => {
@@ -296,6 +341,7 @@ const Upload: React.FC = () => {
           imageUrl={imageUrl}
         />
         {/* ===================================================================================== */}
+        {/* floating box */}
         <BoundBoxNavigation boxes={boxes} setBoxes={setBoxes} />
       </div>
       {/* ===================================================================================== */}
@@ -304,7 +350,7 @@ const Upload: React.FC = () => {
         {/* keywords */}
         <KeywordList keywords={keywords} setKeywords={setKeywords} />
       </div>
-      {/* ===================================================================================== */}      
+      {/* ===================================================================================== */}
         <div>
           <h1>Caption</h1>
           <h2>Long caption</h2>
@@ -318,10 +364,14 @@ const Upload: React.FC = () => {
           <h3>segment를 클릭하여 알맞은 박스 인덱스를 입력해주세요</h3>
           <table id="captionList"></table>
         </div>
-
+        <div>
+          <h2>Segments of COCO captions</h2>
+          <h3>segment를 클릭하여 알맞은 박스 인덱스를 입력해주세요</h3>
+          <table id="cocoCaptionList"></table>
+        </div>
         {/* correct caption */}
         <CorrectCaption boxes={boxes} setBoxes={setBoxes} /> {/* Caption 전체 */}
-      </div>      
+      </div>
     </div>
   );
 };

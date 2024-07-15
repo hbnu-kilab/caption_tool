@@ -8,25 +8,10 @@ interface Box {
   y: number; // 좌측 상단 꼭지점 y 좌표
   height: number; // 박스 높이
   width: number; // 박스 너비
-  entity: string[]; // 감지된 물체들의 이름
   captions: string[]; // correct caption
   errorCaptions: string[][]; // error caption
 }
 
-// 박스 인덱스를 클릭했을 때
-export const handleBoxCreate = (index: number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
-  const caption = prompt(`Enter one object name that can be recognized in this box: ${index}`); // caption 생성 prompt
-  if (!caption) return; // caption이 입력되지 않으면 return
-  if (/^\s*$/.test(caption)) return; // caption에 space바만 입력되어있으면 return
-
-  setBoxes((prevBoxes) => {
-    let newBoxes = [...prevBoxes];
-    console.log(caption.length)
-    if(caption !== null && caption.length > 0) newBoxes[index].entity.push(caption); // caption 추가
-    else newBoxes.pop()
-    return newBoxes; // box array return
-  });
-};
 export const handleBoxClick = (index: number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
   const caption = prompt(`Enter caption for this box: ${index}`); // caption 생성 prompt
   if (!caption) return; // caption이 입력되지 않으면 return
@@ -59,12 +44,12 @@ export  const handleBoxDisplay = (index:number) => {
       if (box.style.display === 'none'){
         box.style.display = 'inline'
         displayBtn.style.backgroundColor = 'rgb(29, 31, 37)'
-        displayBtn.innerHTML = "ON"
+        displayBtn.innerHTML = "on"
       }
       else {
         box.style.display = 'none'
         displayBtn.style.backgroundColor = 'rgb(172, 176, 185)'
-        displayBtn.innerHTML = "OFF"
+        displayBtn.innerHTML = "off"
 
       }
     }
