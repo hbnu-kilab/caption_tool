@@ -73,47 +73,25 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
             <br />
             <div className={`${styles.keywordSet} ${styles.radius}`}>
                 <table style={{ width: '100%', tableLayout: 'fixed' }}>
-                    {Object.entries(groupedByUniqueBeginner).map(([uniqueBeginner, groupedKeywords]) => (
-                        <React.Fragment key={uniqueBeginner}>
+                    {Object.keys(groupedByUniqueBeginner).map((uniqueBeginner, uniqueBeginnerIndex) => (
+                        <React.Fragment key={`${uniqueBeginner}${uniqueBeginnerIndex}`}>
                             <tr>
-                                <td colSpan={5}><strong>{uniqueBeginner}</strong></td>
+                                <td colSpan={5}><strong>{uniqueBeginner === "" ? "none" : uniqueBeginner}</strong></td>
                             </tr>
-                            {Object.entries(groupBy(groupedKeywords as Keyword[], 'nearest_ancestor')).map(([nearestAncestor, nestedKeywords]) => (
-                                <React.Fragment key={nearestAncestor}>
+                            {Object.entries(groupBy(Object.values(groupedByUniqueBeginner[uniqueBeginner]),'nearest_ancestor')).map(([nearest_ancestor, Keywords], KeywordsIndex) => (
+                                <React.Fragment key={`${nearest_ancestor}${uniqueBeginnerIndex}${KeywordsIndex}`}>
                                     <tr>
-                                        <td colSpan={5} style={{ paddingLeft: '20px' }}><strong>{nearestAncestor}</strong></td>
+                                        <td colSpan={5} style={{ paddingLeft: '20px' }}><strong className={`${styles.hovering}`}>{nearest_ancestor === ""? "none" : nearest_ancestor}</strong></td>
                                     </tr>
-                                    {(nestedKeywords as Keyword[]).map((keyword, keywordIndex) => {
-                                        const key = `${uniqueBeginner}-${nearestAncestor}-${keyword.instance}`;
-                                        return (
-                                            <React.Fragment key={key}>
-                                                <tr>
-                                                    <td colSpan={3} className={styles.hovering} onClick={() => handleKeywordDisplay(uniqueBeginner, nearestAncestor, keyword.instance)}>
-                            <span id={`keyword${keywordIndex}`}>
-                              {(keyword.instance === "") ? "none" : keyword.instance}
-                            </span>
-                                                    </td>
-                                                    <td><button className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); KeywordClick(keyword.instance, keywordIndex, setKeywords); }}>modify</button></td>
-                                                    <td><button className={styles.delBtn} onClick={(e) => { e.stopPropagation(); handleDeleteKeywordClick(keyword.instance, keywordIndex); }}>delete</button></td>
-                                                </tr>
-                                                {expandedKeywords[key] && (
-                                                    <tr id={`keywordsyn${keywordIndex}`}>
-                                                        <td colSpan={5}>
-                                                            <div className={styles.keywordList}>
-                                                                {keyword.synset.map((synonym, synonymIndex) => (
-                                                                    <li key={synonymIndex}>
-                                                                        <span className={styles.hovering} onClick={() => SynonymClick(synonym, keywordIndex, synonymIndex, setKeywords)}>{synonym}</span>
-                                                                        <button className={styles.delBtn} onClick={(e) => { e.stopPropagation(); handleDeleteSynonymClick(synonym, keywordIndex, synonymIndex); }}>delete</button>
-                                                                    </li>
-                                                                ))}
-                                                                <button onClick={(e) => { e.stopPropagation(); handleAddSynonymClick(keywordIndex); }} className={styles.addEntity}>+ Synonym</button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </React.Fragment>
-                                        );
-                                    })}
+                                    {Keywords.map((Keyword, KeywordIndex) => (
+                                        <React.Fragment key={`${nearest_ancestor}${uniqueBeginnerIndex}${KeywordIndex}`}>
+                                            <tr>
+                                                <td colSpan={5} style={{ paddingLeft: '40px' }}><span 
+                                                                                                className={`${styles.hovering}`}
+                                                                                                onClick={()=>handleKeywordDisplay(uniqueBeginner,nearest_ancestor,Keyword.instance)}>{Keyword.instance}</span></td>
+                                            </tr>
+                                        </React.Fragment>
+                                    ))}
                                 </React.Fragment>
                             ))}
                         </React.Fragment>
