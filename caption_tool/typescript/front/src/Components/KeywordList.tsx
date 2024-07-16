@@ -160,7 +160,7 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
         <>
             <h1>Keyword of instance</h1>
             <button onClick={() => addKeywordsClick(setKeywords, setHistory)} className={styles.addKeyword}>+ Keyword</button>
-            <button onClick={handleUndo} className={styles.undoButton}>Undo</button>
+            <button onClick={handleUndo} style = {{display:"none"}} className={styles.undoButton}>Undo</button>
             <br />
             <br />
             <div className={`${styles.keywordSet} ${styles.radius}`}>
