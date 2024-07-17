@@ -86,7 +86,10 @@ const Upload: React.FC = () => {
   // 리액트에선 html 요소에 직접 접근을 막고, useRef나 react dom을 사용하여 접근하도록 함
   const imageRef = useRef<HTMLImageElement>(null); // 이미지 요소에 접근하도록 하는
   const { src: imageId } = useParams<{ src: string }>(); // url에서 src 파라미터를 받아옴, 현 페이지에서는 imageId라고 부를거임
+
   const [imageUrl, setImageUrl] = useState<string>(''); // 이미지 url
+  const [ VGId, setVGId ] = useState<string>(''); // url에서 src 파라미터를 받아옴, 현 페이지에서는 imageId라고 부를거임
+
 
   interface OriginalJsonType {
     [key: string]: any; // 기존 JSON 데이터의 키가 무엇이든 상관없이 모두 any 타입으로 지정
@@ -107,6 +110,7 @@ const Upload: React.FC = () => {
         const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
         console.log(data)
         console.log({ key })
+        setVGId(key)
         setOriginalJson(data[key]); // 기존 JSON 데이터를 상태로 저장
         setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
 
@@ -226,7 +230,7 @@ const Upload: React.FC = () => {
         const updatedJson = {
             ...originalJson, // 기존 JSON 데이터 유지
             new_bounding_boxes: boxes.map((box) => ({
-                id: imageId,
+                id: VGId,
                 x: box.x,
                 y: box.y,
                 width: box.width,
@@ -241,7 +245,7 @@ const Upload: React.FC = () => {
             })),
             new_keywords: keywords.reduce((acc: any, keyword) => {
                 acc[keyword.instance] = {
-                    id: imageId,
+                    id: VGId,
                     synset: keyword.synset,
                     nearest_ancestor: keyword.nearest_ancestor,
                     unique_beginner: keyword.unique_beginner
