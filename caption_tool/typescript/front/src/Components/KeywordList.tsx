@@ -86,12 +86,11 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
     };
 
     // 동의어 수정 클릭 시 처리하는 함수
-    const handleModifySynonymClick = (uniqueBeginner: string, nearestAncestor: string, instance: string, synonym: string) => {
+    const handleModifySynonymClick = (uniqueBeginner: string, nearestAncestor: string, instance: string, synonym: string, synonymIndex:number) => {
         const keywordIndex = keywords.findIndex(
             (kw) => kw.unique_beginner === uniqueBeginner && kw.nearest_ancestor === nearestAncestor && kw.instance === instance
         );
         if (keywordIndex !== -1) {
-            const synonymIndex = keywords[keywordIndex].synset.indexOf(synonym);
             if (synonymIndex !== -1) {
                 console.log(`Modifying synonym: ${synonym} for keywordIndex: ${keywordIndex} at synonymIndex: ${synonymIndex}`);
                 SynonymClick(synonym, keywordIndex, synonymIndex, setKeywords, setHistory);
@@ -161,7 +160,7 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
         <>
             <h1>Keyword of instance</h1>
             <button onClick={() => addKeywordsClick(setKeywords, setHistory)} className={styles.addKeyword}>+ Keyword</button>
-            <button onClick={handleUndo} className={styles.undoButton}>Undo</button>
+            <button onClick={handleUndo} style = {{display:"none"}} className={styles.undoButton}>Undo</button>
             <br />
             <br />
             <div className={`${styles.keywordSet} ${styles.radius}`}>
@@ -221,7 +220,7 @@ const KeywordList: React.FC<KeywordListProps> = ({ keywords, setKeywords }) => {
                                                                     <div key={synonymIndex} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px', paddingLeft: '60px' }}>
                                                                         <span className={styles.hovering} >{synonym}</span>
                                                                         <div style={{ display: 'flex', gap: '10px', marginRight: '90px' }}>
-                                                                            <button className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleModifySynonymClick(uniqueBeginner, nearestAncestor, keyword.instance, synonym); }}>modify</button>
+                                                                            <button className={styles.displayBtn} onClick={(e) => { e.stopPropagation(); handleModifySynonymClick(uniqueBeginner, nearestAncestor, keyword.instance, synonym, synonymIndex); }}>modify</button>
                                                                             <button className={styles.delBtn} onClick={(e) => { e.stopPropagation(); handleDeleteSynonymClick(uniqueBeginner, nearestAncestor, keyword.instance, synonym); }}>delete</button>
                                                                         </div>
                                                                     </div>
