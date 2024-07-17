@@ -230,13 +230,13 @@ const Upload: React.FC = () => {
                 y: box.y,
                 width: box.width,
                 height: box.height,
-                captions: box.captions.reduce((captionAcc: any, caption, captionIndex) => {
-                  captionAcc[caption] = {
-                      caption: caption,
-                      errorCaption: box.errorCaptions ? box.errorCaptions[captionIndex] : null
-                  };
-                  return captionAcc;
-              }, {})
+                captions: box.captions.reduce((captionAcc: any, caption, captionIndex) => { 
+                  captionAcc.push({
+                    caption: caption,
+                    errorCaption: box.errorCaptions ? box.errorCaptions[captionIndex] : null
+                });
+                return captionAcc;
+            }, [])
             })),
             new_keywords: keywords.reduce((acc: any, keyword) => {
                 acc[keyword.instance] = {
