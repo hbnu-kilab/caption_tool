@@ -243,15 +243,17 @@ const Upload: React.FC = () => {
                 return captionAcc;
             }, [])
             })),
-            new_keywords: keywords.reduce((acc: any, keyword) => {
+            new_keywords: {
+                image_id: VGId,
+                keywords: keywords.reduce((acc: any, keyword) => {           
                 acc[keyword.instance] = {
-                    image_id: VGId,
                     synset: keyword.synset,
                     nearest_ancestor: keyword.nearest_ancestor,
                     unique_beginner: keyword.unique_beginner
                 };
                 return acc;
-            }, {})
+                }, {})
+          }
         };
 
         fetch('http://localhost:4000/process', {
