@@ -230,7 +230,7 @@ const Upload: React.FC = () => {
         const updatedJson = {
             ...originalJson, // 기존 JSON 데이터 유지
             new_bounding_boxes: boxes.map((box) => ({
-                id: VGId,
+                image_id: VGId,
                 x: box.x,
                 y: box.y,
                 width: box.width,
@@ -245,7 +245,7 @@ const Upload: React.FC = () => {
             })),
             new_keywords: keywords.reduce((acc: any, keyword) => {
                 acc[keyword.instance] = {
-                    id: VGId,
+                    image_id: VGId,
                     synset: keyword.synset,
                     nearest_ancestor: keyword.nearest_ancestor,
                     unique_beginner: keyword.unique_beginner
