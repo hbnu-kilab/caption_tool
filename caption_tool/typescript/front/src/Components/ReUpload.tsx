@@ -57,7 +57,7 @@ export interface Keyword {
  */
 
 // 본격적인 페이지 코드
-const Upload: React.FC = () => {
+const ReUpload: React.FC = () => {
   // 리액트의 상태 변수 정의
   // js는 기본적으로 비동기 방식으로 연결됨.
   // 따라서 데이터가 변하면 주기적으로 랜더링을 다시 해야하는데, 이 빈도가 잦으면 컴퓨터 자원을 많이 잡아먹음(모든 데이터를 기준으로 랜더링 되게 만들어선 안된다는 소리임)
@@ -104,7 +104,7 @@ const Upload: React.FC = () => {
   useEffect(() => {
     console.log(1)
     // /json/splitJson/split_json_${imageId}.json에서 값을 가져옴
-    fetch(`/json/splitJson/split_json_${imageId}.json`)
+    fetch(`/json/outputJson/output_${imageId}.json`)
       .then(response => response.json())
       .then(data => { // 데이터를 받아오면
         const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
@@ -119,27 +119,26 @@ const Upload: React.FC = () => {
         setlongCaption(longCaptionString) // longCaption에 narrative caption 넣기
 
         let keywordsList:string[] = []
-        data['new_keywords'].map((keyword: string, index: number)=>(keywordsList.push((Object.keys(keyword)[0])))) // 키워드 리스트
+        Object.keys(data['new_keywords']['keywords']).map((keyword: string, index: number)=>(keywordsList.push((keyword)))) // 키워드 리스트
 
         // json에 있는 바운딩 박스 가져오기
-        data[key].new_same_regions.map((object:any)=>(
+        data['new_bounding_boxes'].map((object:any)=>(
           boxes.push({
-            x: object.avg_x,
-            y: object.avg_y,
-            height: object.avg_height,
-            width: object.avg_width,
-            captions: Object.keys(object.phrase),
-            errorCaptions: Object.keys(object.phrase).map(item => [item]),
+            x: object.x,
+            y: object.y,
+            height: object.height,
+            width: object.width,
+            captions: object.captions.map((item: any) => [item.caption]),
+            errorCaptions: object.captions.map((item: any) => [item.errorCaption]),
           })
         ))
 
-        console.log(keywordsList)
         keywordsList.map((keyword: string, index: number)=>(
           keywords.push({
             instance: keyword, // 키워드
-            synset: data['new_keywords'][index][keyword].synset, // 동의어
-            nearest_ancestor: data['new_keywords'][index][keyword].nearest_ancestor, // 부모 노드 키워드
-            unique_beginner: data['new_keywords'][index][keyword].unique_beginner, // unique beginner
+            synset: data['new_keywords']['keywords'][keyword].synset, // 동의어
+            nearest_ancestor: data['new_keywords']['keywords'][keyword].nearest_ancestor, // 부모 노드 키워드
+            unique_beginner: data['new_keywords']['keywords'][keyword].unique_beginner, // unique beginner
           })
         ))
         console.log(keywords)
@@ -385,4 +384,4 @@ const Upload: React.FC = () => {
   );
 };
 
-export default Upload;
+export default ReUpload;
