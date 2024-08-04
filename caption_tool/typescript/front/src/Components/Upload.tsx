@@ -322,6 +322,21 @@ const Upload: React.FC = () => {
       textarea.value = innerlongCaption
     }
   }
+
+  const moveReupload = () => {
+
+    fetch(`http://localhost:3000/reupload/${imageId}`)
+        .then(response => response)
+        .then(data => {
+            if (data) {
+                window.location.href = `http://localhost:3000/reupload/${imageId}`;
+            } else {
+                console.log("data error");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+  }
+
   // ==============================================================================================
   // return에서 html 렌더링
   return (
@@ -332,6 +347,7 @@ const Upload: React.FC = () => {
         <button className={`${imageId !== "1"? styles.button : styles.deadButton}`} onClick={prevPage}>◀ prev</button>
         <div className={`${styles.headerControlSection}`}>
           <button className={`${styles.saveButton}`} onClick={saveButton}>💾 save</button>
+          <button className={`${styles.saveButton}`} onClick={moveReupload}>check savefile</button>
           <button className={`${imageId !== "2186"? styles.button : styles.deadButton}`} onClick={nextPage}>next ▶</button>
         </div>
       </div>
