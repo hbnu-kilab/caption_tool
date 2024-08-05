@@ -134,7 +134,7 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) => {
                           </span>
                         </td>
                         <td style={{ verticalAlign: "top" }}>
-                          <span onClick={() => handleErrorCaptionClick(selectedBox, captionIndex, errorCaptionIndex, errorCaption, setBoxes)} style={{ color: errorCaption === boxes[selectedBox].captions[captionIndex] ? "red" : "" }}>
+                          <span onClick={() => handleErrorCaptionClick(selectedBox, captionIndex, errorCaptionIndex, errorCaption, setBoxes)} style={{color: String(errorCaption) === String(boxes[selectedBox].captions[captionIndex]) ? "red" : "gray" }}> 
                             {errorCaption}
                           </span>
                         </td>
