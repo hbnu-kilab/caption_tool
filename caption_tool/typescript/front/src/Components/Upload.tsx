@@ -31,10 +31,13 @@ import BoundBoxNavigation from './BoundBoxNavigation';
 import BoundBoxes from './BoundBoxes';
 
 export interface Box {
+  ids: number[];
+  object_ids: number[];
   x: number; // 좌측 상단 꼭지점 x 좌표
   y: number; // 좌측 상단 꼭지점 y 좌표
   height: number; // 박스 높이
   width: number; // 박스 너비
+  relationship: {},// 관계성
   captions: string[]; // correct caption
   errorCaptions: string[][]; // error caption
 }
@@ -124,10 +127,13 @@ const Upload: React.FC = () => {
         // json에 있는 바운딩 박스 가져오기
         data[key].new_same_regions.map((object:any)=>(
           boxes.push({
+            ids: object.ids,
+            object_ids: object.object_ids,
             x: object.avg_x,
             y: object.avg_y,
             height: object.avg_height,
             width: object.avg_width,
+            relationship: object.relationships,
             captions: Object.keys(object.phrase),
             errorCaptions: Object.keys(object.phrase).map(item => [item]),
           })
@@ -142,7 +148,7 @@ const Upload: React.FC = () => {
             unique_beginner: data['new_keywords'][index][keyword].unique_beginner, // unique beginner
           })
         ))
-        console.log(keywords)
+        console.log(boxes)
       })
       .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
   }, [imageId]);
@@ -232,10 +238,13 @@ const Upload: React.FC = () => {
             ...originalJson, // 기존 JSON 데이터 유지
             new_bounding_boxes: boxes.map((box) => ({
                 image_id: VGId,
+                ids: box.ids,
+                object_ids: box.object_ids,
                 x: box.x,
                 y: box.y,
                 width: box.width,
                 height: box.height,
+                relationship: box.relationship,
                 captions: box.captions.reduce((captionAcc: any, caption, captionIndex) => { 
                   captionAcc.push({
                     caption: caption,

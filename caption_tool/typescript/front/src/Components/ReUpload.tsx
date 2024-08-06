@@ -29,15 +29,7 @@ import CorrectCaption from './CorrectCaption';
 import KeywordList from './KeywordList';
 import BoundBoxNavigation from './BoundBoxNavigation';
 import BoundBoxes from './BoundBoxes';
-
-export interface Box {
-  x: number; // 좌측 상단 꼭지점 x 좌표
-  y: number; // 좌측 상단 꼭지점 y 좌표
-  height: number; // 박스 높이
-  width: number; // 박스 너비
-  captions: string[]; // correct caption
-  errorCaptions: string[][]; // error caption
-}
+import { Box } from './Upload';
 
 export interface Keyword {
   instance: string; // 키워드
@@ -124,10 +116,13 @@ const ReUpload: React.FC = () => {
         // json에 있는 바운딩 박스 가져오기
         data['new_bounding_boxes'].map((object:any)=>(
           boxes.push({
+            ids: object.ids,
+            object_ids: object.object_ids,
             x: object.x,
             y: object.y,
             height: object.height,
             width: object.width,
+            relationship: object.relationship,
             captions: object.captions.map((item: any) => [item.caption]),
             errorCaptions: object.captions.map((item: any) => [item.errorCaption]),
           })
@@ -141,7 +136,7 @@ const ReUpload: React.FC = () => {
             unique_beginner: data['new_keywords']['keywords'][keyword].unique_beginner, // unique beginner
           })
         ))
-        console.log(keywords)
+        console.log(boxes)
       })
       .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
   }, [imageId]);
@@ -231,10 +226,13 @@ const ReUpload: React.FC = () => {
             ...originalJson, // 기존 JSON 데이터 유지
             new_bounding_boxes: boxes.map((box) => ({
                 image_id: VGId,
+                ids: box.ids,
+                object_ids: box.object_ids,
                 x: box.x,
                 y: box.y,
                 width: box.width,
                 height: box.height,
+                relationship: box.relationship,
                 captions: box.captions.reduce((captionAcc: any, caption, captionIndex) => { 
                   captionAcc.push({
                     caption: caption,
