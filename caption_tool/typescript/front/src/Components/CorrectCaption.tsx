@@ -116,15 +116,16 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) => {
           <div className={`${styles.captionSet} ${styles.radius}`}>
             <table>
               <tbody>
-                <tr>
-                  <td colSpan={2} style={{ display: "table-cell" }}>
-                    <button onClick={() => handleAddErrorCaption(selectedBox, boxes[selectedBox].errorCaptions.length, boxes[selectedBox].captions[0], setBoxes)} className={styles.addBtn}>+ add</button>
-                  </td>
-                </tr>
-                <tr><br /><br /></tr>
                 {boxes[selectedBox].errorCaptions.map((errorCaptions, captionIndex) => (
                   <React.Fragment key={`errorCaption${selectedBox}${captionIndex}`}>
-                    {(captionIndex > 0) && (captionIndex < boxes[selectedBox].errorCaptions.length) ? <tr><td colSpan={3}><p></p></td></tr> : ""}
+                    {(captionIndex > 0) && (captionIndex < boxes[selectedBox].errorCaptions.length) ? <tr><td colSpan={3}><hr></hr></td></tr> : ""}
+
+                    <tr>
+                      <td colSpan={2} style={{ display: "table-cell" }}>
+                        <button onClick={() => handleAddErrorCaption(selectedBox, captionIndex, boxes[selectedBox].captions[captionIndex], setBoxes)} className={styles.addBtn}>+ add</button>
+                      </td>
+                    </tr>
+                    <tr><br /><br /></tr>
                     {errorCaptions.map((errorCaption, errorCaptionIndex) => (
                       <tr key={`errorCaption${selectedBox}${captionIndex}${errorCaptionIndex}`} className={styles.hovering}>
                         <td style={{ verticalAlign: "top" }}>
@@ -133,7 +134,7 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) => {
                           </span>
                         </td>
                         <td style={{ verticalAlign: "top" }}>
-                          <span onClick={() => handleErrorCaptionClick(selectedBox, captionIndex, errorCaptionIndex, errorCaption, setBoxes)} style={{ color: errorCaption === boxes[selectedBox].captions[captionIndex] ? "red" : "" }}>
+                          <span onClick={() => handleErrorCaptionClick(selectedBox, captionIndex, errorCaptionIndex, errorCaption, setBoxes)} style={{color: String(errorCaption) === String(boxes[selectedBox].captions[captionIndex]) ? "red" : "gray" }}> 
                             {errorCaption}
                           </span>
                         </td>

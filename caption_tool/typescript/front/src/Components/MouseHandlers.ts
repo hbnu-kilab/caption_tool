@@ -1,13 +1,5 @@
 import { MouseEvent, RefObject } from 'react';
-
-interface Box {
-  x: number; // 좌측 상단 꼭지점 x 좌표
-  y: number; // 좌측 상단 꼭지점 y 좌표
-  height: number; // 박스 높이
-  width: number; // 박스 너비
-  captions: string[]; // correct caption
-  errorCaptions: string[][]; // error caption
-}
+import { Box } from './Upload';
 
 // 이미지의 바운딩 박스가 없는 공간을 마우스로 클릭했을때 발생하는 이벤트
 export const handleMouseDown = (
@@ -64,10 +56,13 @@ export const handleMouseMove = (
     const y = e.clientY - top;
     setNewBox({
       // 전체 업데이트
+      ids: [-1],
+      object_ids: [-1],
       x: Math.min(startX, x), 
       y: Math.min(startY, y), 
       height: Math.abs(startY - y),
       width: Math.abs(startX - x),
+      relationship: {},
       captions: [],
       errorCaptions: [],
     });

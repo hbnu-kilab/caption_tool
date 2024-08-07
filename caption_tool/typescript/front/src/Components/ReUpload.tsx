@@ -29,18 +29,7 @@ import CorrectCaption from './CorrectCaption';
 import KeywordList from './KeywordList';
 import BoundBoxNavigation from './BoundBoxNavigation';
 import BoundBoxes from './BoundBoxes';
-
-export interface Box {
-  ids: number[];
-  object_ids: number[];
-  x: number; // 좌측 상단 꼭지점 x 좌표
-  y: number; // 좌측 상단 꼭지점 y 좌표
-  height: number; // 박스 높이
-  width: number; // 박스 너비
-  relationship: {},// 관계성
-  captions: string[]; // correct caption
-  errorCaptions: string[][]; // error caption
-}
+import { Box } from './Upload';
 
 export interface Keyword {
   instance: string; // 키워드
@@ -60,7 +49,7 @@ export interface Keyword {
  */
 
 // 본격적인 페이지 코드
-const Upload: React.FC = () => {
+const ReUpload: React.FC = () => {
   // 리액트의 상태 변수 정의
   // js는 기본적으로 비동기 방식으로 연결됨.
   // 따라서 데이터가 변하면 주기적으로 랜더링을 다시 해야하는데, 이 빈도가 잦으면 컴퓨터 자원을 많이 잡아먹음(모든 데이터를 기준으로 랜더링 되게 만들어선 안된다는 소리임)
@@ -107,7 +96,7 @@ const Upload: React.FC = () => {
   useEffect(() => {
     console.log(1)
     // /json/splitJson/split_json_${imageId}.json에서 값을 가져옴
-    fetch(`/json/splitJson/split_json_${imageId}.json`)
+    fetch(`/json/outputJson/output_${imageId}.json`)
       .then(response => response.json())
       .then(data => { // 데이터를 받아오면
         const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
@@ -118,35 +107,33 @@ const Upload: React.FC = () => {
         setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
 
         // narrative 데이터를 long caption에 추가
-        let longCaptionString:string = data[key].image_data.localizednarratives[0].caption // narrative caption 가져오기
+        let longCaptionString:string = data.new_localizednarratives// narrative caption 가져오기
         setlongCaption(longCaptionString) // longCaption에 narrative caption 넣기
-        console.log(longCaptionString)
 
         let keywordsList:string[] = []
-        data['new_keywords'].map((keyword: string, index: number)=>(keywordsList.push((Object.keys(keyword)[0])))) // 키워드 리스트
+        Object.keys(data['new_keywords']['keywords']).map((keyword: string, index: number)=>(keywordsList.push((keyword)))) // 키워드 리스트
 
         // json에 있는 바운딩 박스 가져오기
-        data[key].new_same_regions.map((object:any)=>(
+        data['new_bounding_boxes'].map((object:any)=>(
           boxes.push({
             ids: object.ids,
             object_ids: object.object_ids,
-            x: object.avg_x,
-            y: object.avg_y,
-            height: object.avg_height,
-            width: object.avg_width,
-            relationship: object.relationships,
-            captions: Object.keys(object.phrase),
-            errorCaptions: Object.keys(object.phrase).map(item => [item]),
+            x: object.x,
+            y: object.y,
+            height: object.height,
+            width: object.width,
+            relationship: object.relationship,
+            captions: object.captions.map((item: any) => item.caption),
+            errorCaptions: object.captions.map((item: any) => item.errorCaption),
           })
         ))
 
-        console.log(keywordsList)
         keywordsList.map((keyword: string, index: number)=>(
           keywords.push({
             instance: keyword, // 키워드
-            synset: data['new_keywords'][index][keyword].synset, // 동의어
-            nearest_ancestor: data['new_keywords'][index][keyword].nearest_ancestor, // 부모 노드 키워드
-            unique_beginner: data['new_keywords'][index][keyword].unique_beginner, // unique beginner
+            synset: data['new_keywords']['keywords'][keyword].synset, // 동의어
+            nearest_ancestor: data['new_keywords']['keywords'][keyword].nearest_ancestor, // 부모 노드 키워드
+            unique_beginner: data['new_keywords']['keywords'][keyword].unique_beginner, // unique beginner
           })
         ))
         console.log(boxes)
@@ -164,14 +151,13 @@ const Upload: React.FC = () => {
       setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
 
       let longCaptionList:string[] = longCaption.split(".")
-      let correct_captions:string[] = []
-
+      let correct_captions:string[] = [] // 모든 박스의 correct_captions
+      // longCaptionList 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
       boxes.map((box)=>{
         box.captions.map((caption)=>{
           correct_captions.push(caption)
       })
       })
-      
       let tmp:string[] = longCaptionList.filter(x => !correct_captions.includes(x))
       longCaptionList = tmp
       console.log(longCaptionList)
@@ -200,7 +186,6 @@ const Upload: React.FC = () => {
       console.log(coco_caption)
       console.log(correct_captions.includes(coco_caption[0]))
 
-      // longCaptionList 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
       if (selectedCocoCaptionSegment.length < coco_caption.length) {
         const newSelectedSegment = Array(coco_caption.length).fill(false);
         setSelectedCocoCaptionSegment(newSelectedSegment);
@@ -239,6 +224,8 @@ const Upload: React.FC = () => {
       ReactDOM.render(<tbody>{cocoCaptionList}</tbody>, document.getElementById('cocoCaptionList'));
     })
     .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
+
+    
 
   }, [selectedLongCaptionSegment, selectedCocoCaptionSegment, longCaption]);
 
@@ -300,19 +287,14 @@ const Upload: React.FC = () => {
             .then((response) => {
                 if (response.ok) {
                     alert('저장되었습니다.');
-                    return false;
-
                 } else {
                     alert('저장 중 오류가 발생했습니다.');
-                    return false;
                 }
             })
             .catch((error) => {
                 console.error('저장 중 오류가 발생했습니다:', error);
                 alert('저장 중 오류가 발생했습니다.');
-                return false;
             });
-        return false;
     };
 
 
@@ -360,21 +342,6 @@ const Upload: React.FC = () => {
       textarea.value = innerlongCaption
     }
   }
-
-  const moveReupload = () => {
-
-    fetch(`http://localhost:3000/reupload/${imageId}`)
-        .then(response => response)
-        .then(data => {
-            if (data) {
-                window.location.href = `http://localhost:3000/reupload/${imageId}`;
-            } else {
-                console.log("data error");
-            }
-        })
-        .catch(error => console.error('Error:', error));
-  }
-
   // ==============================================================================================
   // return에서 html 렌더링
   return (
@@ -385,7 +352,6 @@ const Upload: React.FC = () => {
         <button className={`${imageId !== "1"? styles.button : styles.deadButton}`} onClick={prevPage}>◀ prev</button>
         <div className={`${styles.headerControlSection}`}>
           <button className={`${styles.saveButton}`} onClick={saveButton}>💾 save</button>
-          <button className={`${styles.saveButton}`} onClick={moveReupload}>check savefile</button>
           <button className={`${imageId !== "2186"? styles.button : styles.deadButton}`} onClick={nextPage}>next ▶</button>
         </div>
       </div>
@@ -439,4 +405,4 @@ const Upload: React.FC = () => {
   );
 };
 
-export default Upload;
+export default ReUpload;
