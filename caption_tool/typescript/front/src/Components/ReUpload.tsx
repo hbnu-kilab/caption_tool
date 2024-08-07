@@ -107,7 +107,7 @@ const ReUpload: React.FC = () => {
         setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
 
         // narrative 데이터를 long caption에 추가
-        let longCaptionString:string = data[key].image_data.localizednarratives[0].caption // narrative caption 가져오기
+        let longCaptionString:string = data.new_localizednarratives// narrative caption 가져오기
         setlongCaption(longCaptionString) // longCaption에 narrative caption 넣기
 
         let keywordsList:string[] = []
@@ -151,6 +151,16 @@ const ReUpload: React.FC = () => {
       setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
 
       let longCaptionList:string[] = longCaption.split(".")
+      let correct_captions:string[] = [] // 모든 박스의 correct_captions
+      // longCaptionList 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
+      boxes.map((box)=>{
+        box.captions.map((caption)=>{
+          correct_captions.push(caption)
+      })
+      })
+      let tmp:string[] = longCaptionList.filter(x => !correct_captions.includes(x))
+      longCaptionList = tmp
+      console.log(longCaptionList)
 
       // long 캡션 생성
       const textarea = document.getElementById('longCaption') as HTMLInputElement;
@@ -165,19 +175,16 @@ const ReUpload: React.FC = () => {
       }
 
       let coco_caption: string[] = data[key].image_data.coco_caption
-      let correct_captions:string[] = []
       // longCaptionList 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
       boxes.map((box)=>{
         box.captions.map((caption)=>{
           correct_captions.push(caption)
       })
       })
-      let tmp:string[] = coco_caption.filter(x => !correct_captions.includes(x))
+      tmp = coco_caption.filter(x => !correct_captions.includes(x))
       coco_caption = tmp
       console.log(coco_caption)
       console.log(correct_captions.includes(coco_caption[0]))
-
-
 
       if (selectedCocoCaptionSegment.length < coco_caption.length) {
         const newSelectedSegment = Array(coco_caption.length).fill(false);
@@ -193,7 +200,7 @@ const ReUpload: React.FC = () => {
               SegmentClick(caption, index, setBoxes, setSelectedLongCaptionSegment);
             }
           }}
-          className={`${selectedLongCaptionSegment[index] ? styles.select : ''} ${styles.hovering}`}
+          className={`${styles.hovering}`}
         >
           {caption}
         </tr>
@@ -239,6 +246,7 @@ const ReUpload: React.FC = () => {
         event.preventDefault(); 
         const updatedJson = {
             ...originalJson, // 기존 JSON 데이터 유지
+            new_localizednarratives: longCaption,
             new_bounding_boxes: boxes.map((box) => ({
                 image_id: VGId,
                 ids: box.ids,

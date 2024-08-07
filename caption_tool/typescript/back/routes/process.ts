@@ -34,6 +34,7 @@ router.post('/', async (req: CustomRequest<UpdateRequestBody>, res: Response) =>
     // 새로운 데이터 병합
     const updatedJson = {
       ...originalJson,
+      new_localizednarratives: json.new_localizednarratives,
       new_bounding_boxes: json.new_bounding_boxes,
       new_keywords: json.new_keywords
     };
