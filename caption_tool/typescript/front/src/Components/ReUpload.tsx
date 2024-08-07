@@ -123,8 +123,8 @@ const ReUpload: React.FC = () => {
             height: object.height,
             width: object.width,
             relationship: object.relationship,
-            captions: object.captions.map((item: any) => [item.caption]),
-            errorCaptions: object.captions.map((item: any) => [item.errorCaption]),
+            captions: object.captions.map((item: any) => item.caption),
+            errorCaptions: object.captions.map((item: any) => item.errorCaption),
           })
         ))
 
@@ -165,7 +165,20 @@ const ReUpload: React.FC = () => {
       }
 
       let coco_caption: string[] = data[key].image_data.coco_caption
+      let correct_captions:string[] = []
       // longCaptionList 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
+      boxes.map((box)=>{
+        box.captions.map((caption)=>{
+          correct_captions.push(caption)
+      })
+      })
+      let tmp:string[] = coco_caption.filter(x => !correct_captions.includes(x))
+      coco_caption = tmp
+      console.log(coco_caption)
+      console.log(correct_captions.includes(coco_caption[0]))
+
+
+
       if (selectedCocoCaptionSegment.length < coco_caption.length) {
         const newSelectedSegment = Array(coco_caption.length).fill(false);
         setSelectedCocoCaptionSegment(newSelectedSegment);
@@ -196,7 +209,7 @@ const ReUpload: React.FC = () => {
               SegmentClick(caption, index, setBoxes, setSelectedCocoCaptionSegment);
             }
           }}
-          className={`${selectedCocoCaptionSegment[index] ? styles.select : ''} ${styles.hovering}`}
+          className={`${styles.hovering}`}
         >
           {caption}
         </tr>
@@ -204,6 +217,8 @@ const ReUpload: React.FC = () => {
       ReactDOM.render(<tbody>{cocoCaptionList}</tbody>, document.getElementById('cocoCaptionList'));
     })
     .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
+
+    
 
   }, [selectedLongCaptionSegment, selectedCocoCaptionSegment, longCaption]);
 
