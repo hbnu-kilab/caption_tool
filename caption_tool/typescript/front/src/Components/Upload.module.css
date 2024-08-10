@@ -336,6 +336,7 @@ hr{
 /* correct & error */
 .captionContainer{
     width: 100%;
+    max-width: 300px;
 }
 .captionSet{
     position: relative;
