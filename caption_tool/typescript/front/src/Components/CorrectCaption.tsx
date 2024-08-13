@@ -13,9 +13,11 @@ import {
 interface CorrectCaptionProps {
   boxes: Box[];
   setBoxes: React.Dispatch<React.SetStateAction<Box[]>>;
+  selectedBoxIndex: number;
+  onBoxSelect: (index: number) => void;
 }
 
-const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) => {
+const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes , selectedBoxIndex , onBoxSelect}) => {
   const [selectedBox, setSelectedBox] = useState<number>(0);
 
   useEffect(() => {
@@ -27,6 +29,7 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) => {
   // correct caption 선택
   const selectBox = (CaptionIndex: number) => {
     setSelectedBox(CaptionIndex);
+    onBoxSelect(CaptionIndex);
   }
 
   // 음수를 0으로 변환

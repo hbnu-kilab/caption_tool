@@ -58,6 +58,8 @@ const ReUpload: React.FC = () => {
   const [boxes, setBoxes] = useState<Box[]>([]); // 박스 array 상태 변수
   // 변경되거나 추가되는 box 요소에 대해 따로 보관하여 JSON 파일에 추가하는 목적의 상태 ( AddedState JSDoc 참고 )
 
+  const [selectedBoxIndex, setSelectedBoxIndex] = useState<number>(0);
+
   const [newBox, setNewBox] = useState<Box | null>(null); // 새로 만드는 박스를 잠시 저장해두는 상태변수
   const [startX, setStartX] = useState<number>(0); // Box.x 가 될 변수
   const [startY, setStartY] = useState<number>(0); // Box.y 가 될 변수
@@ -301,6 +303,9 @@ const ReUpload: React.FC = () => {
 
     // ==============================================================================================
 
+  const handleBoxSelect = (index: number) => {
+    setSelectedBoxIndex(index);
+  };
 
   const onHandleMouseMove = (e: MouseEvent<HTMLDivElement>) =>
     handleMouseMove(
@@ -368,6 +373,9 @@ const ReUpload: React.FC = () => {
           onResizeMouseDown={e => index => handleResizeMouseDown(index, e, setIsResizing, setResizeIndex) }
           imageRef={imageRef}
           imageUrl={imageUrl}
+          newBox={newBox}
+          selectedBoxIndex={selectedBoxIndex}
+          onBoxSelect={handleBoxSelect}
         />
         {/* ===================================================================================== */}
         {/* floating box */}
@@ -399,7 +407,12 @@ const ReUpload: React.FC = () => {
           <table id="cocoCaptionList"></table>
         </div>
         {/* correct caption */}
-        <CorrectCaption boxes={boxes} setBoxes={setBoxes} /> {/* Caption 전체 */}
+        <CorrectCaption
+          boxes={boxes}
+          setBoxes={setBoxes}
+          selectedBoxIndex={selectedBoxIndex}
+          onBoxSelect={handleBoxSelect}
+        /> {/* Caption 전체 */}
       </div>
     </div>
   );

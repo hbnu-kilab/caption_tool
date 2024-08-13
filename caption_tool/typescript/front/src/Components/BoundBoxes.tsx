@@ -16,6 +16,7 @@ interface BoundBoxesProps {
   onResizeMouseDown: (e: MouseEvent<HTMLDivElement>) => (index: number) => void;
   imageRef: MutableRefObject<HTMLImageElement | null>;
   imageUrl: string;
+  selectedBoxIndex: number;
 }
 
 const BoundBoxes: React.FC<BoundBoxesProps> = ({
@@ -28,6 +29,7 @@ const BoundBoxes: React.FC<BoundBoxesProps> = ({
     onBoxMouseDown,
     imageRef,
     imageUrl,
+    selectedBoxIndex,
 }) => {
   return (
     <>
@@ -41,14 +43,25 @@ const BoundBoxes: React.FC<BoundBoxesProps> = ({
         {newBox && (
           <div
             className="caption-box"
-            style={uploadStyles.newBoundBox(newBox)}
+            style={{
+              position: 'absolute',
+              border: '2px solid red',
+              left: `${newBox.x}px`,
+              top: `${newBox.y}px`,
+              width: `${newBox.width}px`,
+              height: `${newBox.height}px`,
+              pointerEvents: 'none',
+            }}
           />
         )}
         {boxes.map((box, index) => (
           <div
             id={`box${index}`}
             key={index}
-            style={uploadStyles.boundBox(box)}
+            style={{
+              ...uploadStyles.boundBox(box),
+              border: `2px solid ${index === selectedBoxIndex ? 'red' : 'blue'}`,
+            }}
             onMouseDown={e => onBoxMouseDown(e)(index)}
           >
             {box.captions && (

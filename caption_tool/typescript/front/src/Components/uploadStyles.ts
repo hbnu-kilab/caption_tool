@@ -13,7 +13,6 @@ const uploadStyles = {
   }),
   boundBox: (box: Box): CSSProperties => ({
     position: 'absolute',
-    border: '2px solid blue',
     left: `${box.x}px`,
     top: `${box.y}px`,
     width: `${box.width}px`,
