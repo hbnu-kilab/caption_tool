@@ -56,13 +56,16 @@ export const handleErrorCaptionClick = (BoxIndex: number, CaptionIndex: number, 
 
 // error caption을 누르는 경우 실행됨, 삭제용
 export const delCaptionClick = (BoxIndex: number, CaptionIndex: number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
-    setBoxes((prevBoxes) => {
-        const newBoxes = [...prevBoxes];
-        newBoxes[BoxIndex].captions.splice(CaptionIndex, 1);
-        newBoxes[BoxIndex].errorCaptions.splice(CaptionIndex, 1);
-        return newBoxes;
-    });
-
+    if (confirm("정말 삭제하시겠습니까??") == true){    //확인
+        setBoxes((prevBoxes) => {
+            const newBoxes = [...prevBoxes];
+            newBoxes[BoxIndex].captions.splice(CaptionIndex, 1);
+            newBoxes[BoxIndex].errorCaptions.splice(CaptionIndex, 1);
+            return newBoxes;
+        });
+    }else{   //취소
+        return false;
+    }
 }
 
 // error caption을 누르는 경우 실행됨, 삭제용
