@@ -17,7 +17,7 @@ export const handleBoxClick = (index: number, setBoxes: Dispatch<SetStateAction<
 };
 // delete 버튼을 클릭했을 떄
 export const handleDeleteClick = (index: number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
-  if (confirm("정말 삭제하시겠습니까??") == true){    //확인
+  if (confirm("정말 진행하시겠습니까??") == true){    //확인
     setBoxes((prevBoxes) => {
       const newBoxes = [...prevBoxes];
       newBoxes.splice(index, 1); // 배열에서 해당 인덱스의 요소를 제거
