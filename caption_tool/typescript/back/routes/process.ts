@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import fs from 'fs/promises';
+import fs from 'fs/promises';  // fs/promises 모듈 사용
 import path from 'path';
 
 const router = Router();
@@ -24,28 +24,42 @@ interface CustomRequest<T> extends Request {
  */
 router.post('/', async (req: CustomRequest<UpdateRequestBody>, res: Response) => {
   const { jsonIndex, json } = req.body;
-  console.log("start")
+  console.log("start");
 
   try {
+    // 기존 JSON 파일 경로 확인 및 읽기
+    const originalJsonPath = (await fs.access(getPath(jsonIndex)).then(() => true).catch(() => false))
+      ? getPath(jsonIndex)
+      : getOutputPath(jsonIndex);
+      
+    console.log(originalJsonPath);
+
     // 기존 JSON 파일 읽기
-    const originalJsonPath = getPath(jsonIndex);
     const originalJson = JSON.parse(await fs.readFile(originalJsonPath, 'utf-8'));
 
-    // 새로운 데이터 병합
-    const updatedJson = {
-      ...originalJson,
-      new_localizednarratives: json.new_localizednarratives,
-      new_bounding_boxes: json.new_bounding_boxes,
-      new_keywords: json.new_keywords
-    };
+    let updatedJson = { ...originalJson };
+
+    if (originalJsonPath === getPath(jsonIndex)) {
+      // 새로운 데이터 병합
+      updatedJson = {
+        ...originalJson,
+        new_localizednarratives: json.new_localizednarratives,
+        new_bounding_boxes: json.new_bounding_boxes,
+        new_keywords: json.new_keywords,
+      };
+    } else if (originalJsonPath === getOutputPath(jsonIndex)) {
+      updatedJson['new_localizednarratives'] = json.new_localizednarratives;
+      updatedJson['new_bounding_boxes'] = json.new_bounding_boxes;
+      updatedJson['new_keywords'] = json.new_keywords;
+    }
 
     // 병합된 JSON 파일 저장
     await fs.writeFile(getOutputPath(jsonIndex), JSON.stringify(updatedJson, null, 2));
 
-     return res.status(201).send();
+    return res.status(201).send();
   } catch (error) {
     console.error(error);
-     return res.status(500).send("서버 에러가 발생하였습니다.");
+    return res.status(500).send("서버 에러가 발생하였습니다.");
   }
 });
 
