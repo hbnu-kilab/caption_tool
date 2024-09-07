@@ -7,6 +7,7 @@ import {
   handleAddCaption,
   handleAddErrorCaption,
   handleCaptionClick,
+  captionMoveClick,
   handleErrorCaptionClick
 } from './CaptionHandler';
 
@@ -38,10 +39,10 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes , selec
   }
 
   return (
-    <div className={styles.flexContainer}>
-      <table style={boxes.length > 15 ? { position: "absolute", marginTop: "150px" } : { position: "absolute", marginTop: "180px" }}>
+    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+      <table cellSpacing="10" style={boxes.length > 15 ? { marginTop: "50px" } : { marginTop: "50px" }}>
         <tbody>
-          <tr>
+          <tr style={{padding:'10px'}}>
             {boxes.slice(0, 15).map((box, boxIndex) => (
               <td key={boxIndex}>
                 <button
@@ -69,6 +70,8 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes , selec
           }
         </tbody>
       </table>
+    <div className={styles.flexContainer}>
+
       <div className={styles.captionContainer}>
         <h2>correct caption set</h2>
         <h3>박스에 대한 <b>정확한 설명</b>을 입력해주세요.
@@ -91,16 +94,17 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes , selec
                     {(captionIndex > 0) && (captionIndex < boxes[selectedBox].captions.length) ? <tr><td colSpan={3}><p></p></td></tr> : ""}
                     <tr className={styles.hovering}>
                       <td style={{ verticalAlign: "top" }}>
-                        <span onClick={() => handleCaptionClick(selectedBox, captionIndex, caption, setBoxes)}>
+                        <button onClick={() => captionMoveClick(selectedBox, captionIndex, caption, setBoxes)}
+                          className={styles.movingBtn}>
                           ({selectedBox}-{captionIndex})
-                        </span>
+                        </button>
                       </td>
                       <td style={{ verticalAlign: "top" }}>
-                        <span onClick={() => handleCaptionClick(selectedBox, captionIndex, caption, setBoxes)}>
+                        <span style = {{marginLeft: "5px"}} onClick={() => handleCaptionClick(selectedBox, captionIndex, caption, setBoxes)}>
                           {caption}
                         </span>
                       </td>
-                      <td><button onClick={() => delCaptionClick(selectedBox, captionIndex, setBoxes)}> X </button></td>
+                      <td><button onClick={() => delCaptionClick(selectedBox, captionIndex, setBoxes)} className={styles.delBtn}> X </button></td>
                     </tr>
                   </React.Fragment>
                 ))}
@@ -152,6 +156,8 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes , selec
         )}
       </div>
     </div>
+    </div>
+
   );
 };
 
