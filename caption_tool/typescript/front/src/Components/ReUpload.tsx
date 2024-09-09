@@ -146,7 +146,7 @@ const ReUpload: React.FC = () => {
   // selectedSegment들이 변할때 재 실행 되는 useEffect
   useEffect(() => {
     console.log(2)
-    fetch(`/json/splitJson/split_json_${imageId}.json`)
+    fetch(`/json/outputJson/output_${imageId}.json`)
     .then(response => response.json())
     .then(data => { // 데이터를 받아오면
       const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
