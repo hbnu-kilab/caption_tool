@@ -57,7 +57,9 @@ export const captionMoveClick = (BoxIndex: number, CaptionIndex: number, originC
       // 기존 박스에서 캡션을 옮김
       newBoxes[newBoxIndex].captions.push(originCaption);
       newBoxes[newBoxIndex].errorCaptions.push(newBoxes[BoxIndex].errorCaptions[CaptionIndex]); // error caption에도 함께 반영
-      delCaptionClick(BoxIndex, CaptionIndex, setBoxes)
+      newBoxes[BoxIndex].captions.splice(CaptionIndex, 1);
+      newBoxes[BoxIndex].errorCaptions.splice(CaptionIndex, 1);
+
       return newBoxes;
     });
 
