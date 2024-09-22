@@ -44,7 +44,7 @@ dictionary = {
     '장미': ['rose', 'roses', 'rosebud', 'rosebuds'],
     '자작나무': ['birch', 'birches', 'birch tree', 'birch trees'],
     '잔디': ['grass', 'lawn', 'turf', 'weed', 'grasses', 'weeds', 
-           'grassland', 'grasslands', 'meadow', 'veldt'],
+           'grassland', 'grasslands', 'meadow', 'veldt', 'grass fields', 'grassy field', 'grassy fields', 'green field', 'green fields', 'pasture', 'pastures'],
     
     
     # ============================================================    
@@ -144,9 +144,8 @@ dictionary = {
     '가운/로브': ['gown', 'robe'],
     '후드': ['hoodie', 'hoodies'],
     # 하의
-    '바지': ['pant', 'skirt', 'jean', 'pants', 'skirts', 'jeans'],
+    '바지': ['pant', 'skirt', 'jean', 'pants', 'skirts', 'jeans', 'trousers', 'jeans', 'slacks'],
     '치마': ['skirts', 'skirt'],
-    '바지': ['pants', 'trousers', 'jeans', 'slacks'],
     '양말': ['sock', 'socks', 'stocking', 'stockings', 'hosiery'],    
     # 신발
     '신발': ['shoe', 'shoes','footwear'],
@@ -197,7 +196,6 @@ dictionary = {
     '안개':['mist'],
     # 자연물
     '덤불': ['bush', 'bushes'],
-    '잔디': ['grass', 'grass fields', 'grassy field', 'grassy fields', 'green field', 'green fields', 'pasture', 'pastures'],
     '자갈': ['gravel', 'pebble', 'pebbles', 'cobblestone', 'cobblestones'],
     '모래': ['sand', 'sands'],
     '흙': ['soil', 'dirt', 'earth'],
@@ -240,7 +238,6 @@ dictionary = {
     '가게': ['store', 'stores', 'shop', 'shops', 'market', 'markets'],
     '식당': ['restaurant', 'restaurants', 'cafe', 'cafes', 'eatery', 'eateries'],
     '노래방': ['karaoke'],
-    '학교': ['school', 'schools'],
     # 건물 외관
     '입구(현관)': ['entranceway', 'entranceways', 'entryway', 'entryways', 'porch', 'porches', 'stoop', 'stoops'],
     '지붕': ['roof', 'roofs', 'shingle', 'shingles'],
