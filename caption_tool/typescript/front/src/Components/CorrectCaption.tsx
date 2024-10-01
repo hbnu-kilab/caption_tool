@@ -91,7 +91,9 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes , selec
                 <tr><br /><br /></tr>
                 {boxes[selectedBox].captions.map((caption, captionIndex) => (
                   <React.Fragment key={`correctCaption${selectedBox}${captionIndex}`}>
-                    {(captionIndex > 0) && (captionIndex < boxes[selectedBox].captions.length) ? <tr><td colSpan={3}><p></p></td></tr> : ""}
+                    {(captionIndex > 0) && (captionIndex < boxes[selectedBox].captions.length) ? <tr><td colSpan={3}><hr></hr></td></tr> : ""}
+                    {(captionIndex > 0) && (captionIndex < boxes[selectedBox].captions.length) ? <tr><td colSpan={3}><p style={{marginTop:'40px'}}></p></td></tr> : ""}
+
                     <tr className={styles.hovering}>
                       <td style={{ verticalAlign: "top" }}>
                         <button onClick={() => captionMoveClick(selectedBox, captionIndex, caption, setBoxes)}
@@ -104,7 +106,7 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes , selec
                           {caption}
                         </span>
                       </td>
-                      <td><button onClick={() => delCaptionClick(selectedBox, captionIndex, setBoxes)} className={styles.delBtn}> X </button></td>
+                      <td><button onClick={() => delCaptionClick(selectedBox, captionIndex, setBoxes)}> X </button></td>
                     </tr>
                   </React.Fragment>
                 ))}
@@ -136,9 +138,10 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes , selec
                     {errorCaptions.map((errorCaption, errorCaptionIndex) => (
                       <tr key={`errorCaption${selectedBox}${captionIndex}${errorCaptionIndex}`} className={styles.hovering}>
                         <td style={{ verticalAlign: "top" }}>
-                          <span onClick={() => handleErrorCaptionClick(selectedBox, captionIndex, errorCaptionIndex, errorCaption, setBoxes)}>
-                            ({selectedBox}-{captionIndex})
-                          </span>
+                          <button onClick={() => handleErrorCaptionClick(selectedBox, captionIndex, errorCaptionIndex, errorCaption, setBoxes)}
+                          className={styles.movingBtn}>
+                          ({selectedBox}-{captionIndex})
+                          </button>
                         </td>
                         <td style={{ verticalAlign: "top" }}>
                           <span onClick={() => handleErrorCaptionClick(selectedBox, captionIndex, errorCaptionIndex, errorCaption, setBoxes)} style={{color: String(errorCaption) === String(boxes[selectedBox].captions[captionIndex]) ? "red" : "gray" }}> 
