@@ -185,6 +185,7 @@ dictionary = {
     # ============================================================
     # 장소
     # 실외
+    '박스': ['box', 'boxes'],
     # 실외 장소(자연)
     '바다': ['sea', 'ocean', 'waters', 'waves'],
     '산': ['mountain', 'mountains', 'peak', 'hill', 'summit'],
