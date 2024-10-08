@@ -22,12 +22,26 @@ const BoundBoxNavigation: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes }) 
       if (firstBoxIndex === boxIndex) {
         setFirstBoxIndex(null);
       } else {
+        if (boxes[firstBoxIndex].ids !== null){
+          boxes[firstBoxIndex].ids.map((ids)=>(
+            boxes[boxIndex].ids.push(ids)
+          ))
+        }
+        if (boxes[firstBoxIndex].object_ids !== null){
+          boxes[firstBoxIndex].object_ids.map((ids)=>(
+            boxes[boxIndex].object_ids.push(ids)
+          ))
+        }
         boxes[firstBoxIndex].captions.map((caption, captionIndex)=>(
           boxes[boxIndex].captions.push(caption)
         ))
         boxes[firstBoxIndex].errorCaptions.map((errorCaption, errorCaptionIndex)=>(
           boxes[boxIndex].errorCaptions.push(errorCaption)
         ))
+
+        const tmp  = Object.assign(boxes[firstBoxIndex].relationship,boxes[boxIndex].relationship)
+        boxes[boxIndex].relationship = tmp
+
         handleDeleteClick(firstBoxIndex, setBoxes)
         setFirstBoxIndex(null);
       }

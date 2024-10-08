@@ -31,10 +31,13 @@ import BoundBoxNavigation from './BoundBoxNavigation';
 import BoundBoxes from './BoundBoxes';
 
 export interface Box {
+  ids: number[];
+  object_ids: number[];
   x: number; // 좌측 상단 꼭지점 x 좌표
   y: number; // 좌측 상단 꼭지점 y 좌표
   height: number; // 박스 높이
   width: number; // 박스 너비
+  relationship: {},// 관계성
   captions: string[]; // correct caption
   errorCaptions: string[][]; // error caption
 }
@@ -65,6 +68,8 @@ const Upload: React.FC = () => {
 
   const [boxes, setBoxes] = useState<Box[]>([]); // 박스 array 상태 변수
   // 변경되거나 추가되는 box 요소에 대해 따로 보관하여 JSON 파일에 추가하는 목적의 상태 ( AddedState JSDoc 참고 )
+
+  const [selectedBoxIndex, setSelectedBoxIndex] = useState<number>(0);
 
   const [newBox, setNewBox] = useState<Box | null>(null); // 새로 만드는 박스를 잠시 저장해두는 상태변수
   const [startX, setStartX] = useState<number>(0); // Box.x 가 될 변수
@@ -117,6 +122,7 @@ const Upload: React.FC = () => {
         // narrative 데이터를 long caption에 추가
         let longCaptionString:string = data[key].image_data.localizednarratives[0].caption // narrative caption 가져오기
         setlongCaption(longCaptionString) // longCaption에 narrative caption 넣기
+        console.log(longCaptionString)
 
         let keywordsList:string[] = []
         data['new_keywords'].map((keyword: string, index: number)=>(keywordsList.push((Object.keys(keyword)[0])))) // 키워드 리스트
@@ -124,10 +130,13 @@ const Upload: React.FC = () => {
         // json에 있는 바운딩 박스 가져오기
         data[key].new_same_regions.map((object:any)=>(
           boxes.push({
+            ids: object.ids,
+            object_ids: object.object_ids,
             x: object.avg_x,
             y: object.avg_y,
             height: object.avg_height,
             width: object.avg_width,
+            relationship: object.relationships,
             captions: Object.keys(object.phrase),
             errorCaptions: Object.keys(object.phrase).map(item => [item]),
           })
@@ -142,7 +151,7 @@ const Upload: React.FC = () => {
             unique_beginner: data['new_keywords'][index][keyword].unique_beginner, // unique beginner
           })
         ))
-        console.log(keywords)
+        console.log(boxes)
       })
       .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
   }, [imageId]);
@@ -157,6 +166,17 @@ const Upload: React.FC = () => {
       setImageUrl(data[key].image_data.url); // 이미지 url 세팅하기
 
       let longCaptionList:string[] = longCaption.split(".")
+      let correct_captions:string[] = []
+
+      boxes.map((box)=>{
+        box.captions.map((caption)=>{
+          correct_captions.push(caption)
+      })
+      })
+      
+      let tmp:string[] = longCaptionList.filter(x => !correct_captions.includes(x))
+      longCaptionList = tmp
+      console.log(longCaptionList)
 
       // long 캡션 생성
       const textarea = document.getElementById('longCaption') as HTMLInputElement;
@@ -172,6 +192,17 @@ const Upload: React.FC = () => {
 
       let coco_caption: string[] = data[key].image_data.coco_caption
       // longCaptionList 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
+      boxes.map((box)=>{
+        box.captions.map((caption)=>{
+          correct_captions.push(caption)
+      })
+      })
+      tmp = coco_caption.filter(x => !correct_captions.includes(x))
+      coco_caption = tmp
+      console.log(coco_caption)
+      console.log(correct_captions.includes(coco_caption[0]))
+
+      // longCaptionList 길이만큼 selectedSegment에 false 값 넣기(true로 변환될 시 취소선이 생기도록 함)
       if (selectedCocoCaptionSegment.length < coco_caption.length) {
         const newSelectedSegment = Array(coco_caption.length).fill(false);
         setSelectedCocoCaptionSegment(newSelectedSegment);
@@ -186,7 +217,7 @@ const Upload: React.FC = () => {
               SegmentClick(caption, index, setBoxes, setSelectedLongCaptionSegment);
             }
           }}
-          className={`${selectedLongCaptionSegment[index] ? styles.select : ''} ${styles.hovering}`}
+          className={`${styles.hovering}`}
         >
           {caption}
         </tr>
@@ -202,7 +233,7 @@ const Upload: React.FC = () => {
               SegmentClick(caption, index, setBoxes, setSelectedCocoCaptionSegment);
             }
           }}
-          className={`${selectedCocoCaptionSegment[index] ? styles.select : ''} ${styles.hovering}`}
+          className={`${styles.hovering}`}
         >
           {caption}
         </tr>
@@ -226,15 +257,20 @@ const Upload: React.FC = () => {
 
     // 현재까지 변경된 사항들이 저장되도록 하기
   }
-    const saveButton = () => {
+  const saveButton = (event:any) => {
+        event.preventDefault(); 
         const updatedJson = {
             ...originalJson, // 기존 JSON 데이터 유지
+            new_localizednarratives: longCaption,
             new_bounding_boxes: boxes.map((box) => ({
                 image_id: VGId,
+                ids: box.ids,
+                object_ids: box.object_ids,
                 x: box.x,
                 y: box.y,
                 width: box.width,
                 height: box.height,
+                relationship: box.relationship,
                 captions: box.captions.reduce((captionAcc: any, caption, captionIndex) => { 
                   captionAcc.push({
                     caption: caption,
@@ -266,20 +302,28 @@ const Upload: React.FC = () => {
             .then((response) => {
                 if (response.ok) {
                     alert('저장되었습니다.');
+                    return false;
+
                 } else {
                     alert('저장 중 오류가 발생했습니다.');
+                    return false;
                 }
             })
             .catch((error) => {
                 console.error('저장 중 오류가 발생했습니다:', error);
                 alert('저장 중 오류가 발생했습니다.');
+                return false;
             });
+        return false;
     };
 
 
 
     // ==============================================================================================
 
+  const handleBoxSelect = (index: number) => {
+    setSelectedBoxIndex(index);
+  };
 
   const onHandleMouseMove = (e: MouseEvent<HTMLDivElement>) =>
     handleMouseMove(
@@ -321,6 +365,21 @@ const Upload: React.FC = () => {
       textarea.value = innerlongCaption
     }
   }
+
+  const moveReupload = () => {
+
+    fetch(`http://localhost:3000/reupload/${imageId}`)
+        .then(response => response)
+        .then(data => {
+            if (data) {
+                window.location.href = `http://localhost:3000/reupload/${imageId}`;
+            } else {
+                console.log("data error");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+  }
+
   // ==============================================================================================
   // return에서 html 렌더링
   return (
@@ -331,6 +390,7 @@ const Upload: React.FC = () => {
         <button className={`${imageId !== "1"? styles.button : styles.deadButton}`} onClick={prevPage}>◀ prev</button>
         <div className={`${styles.headerControlSection}`}>
           <button className={`${styles.saveButton}`} onClick={saveButton}>💾 save</button>
+          <button className={`${styles.saveButton}`} onClick={moveReupload}>check savefile</button>
           <button className={`${imageId !== "2186"? styles.button : styles.deadButton}`} onClick={nextPage}>next ▶</button>
         </div>
       </div>
@@ -347,6 +407,8 @@ const Upload: React.FC = () => {
           onResizeMouseDown={e => index => handleResizeMouseDown(index, e, setIsResizing, setResizeIndex) }
           imageRef={imageRef}
           imageUrl={imageUrl}
+          selectedBoxIndex={selectedBoxIndex}
+          newBox={newBox}
         />
         {/* ===================================================================================== */}
         {/* floating box */}
@@ -378,7 +440,12 @@ const Upload: React.FC = () => {
           <table id="cocoCaptionList"></table>
         </div>
         {/* correct caption */}
-        <CorrectCaption boxes={boxes} setBoxes={setBoxes} /> {/* Caption 전체 */}
+        <CorrectCaption
+          boxes={boxes}
+          setBoxes={setBoxes}
+          selectedBoxIndex={selectedBoxIndex}
+          onBoxSelect={handleBoxSelect}
+        /> {/* Caption 전체 */}
       </div>
     </div>
   );

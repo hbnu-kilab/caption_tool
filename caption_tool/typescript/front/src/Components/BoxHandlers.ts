@@ -1,16 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-
-// 박스 인덱스를 클릭했을때 캡션을 추가하거나, 박스를 삭제할 때 사용하는 함수
-
-// 드래그 박스 객체를 만들기 위한 인터페이스
-interface Box {
-  x: number; // 좌측 상단 꼭지점 x 좌표
-  y: number; // 좌측 상단 꼭지점 y 좌표
-  height: number; // 박스 높이
-  width: number; // 박스 너비
-  captions: string[]; // correct caption
-  errorCaptions: string[][]; // error caption
-}
+import { Box } from './Upload';
 
 export const handleBoxClick = (index: number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
   const caption = prompt(`Enter caption for this box: ${index}`); // caption 생성 prompt
@@ -28,11 +17,15 @@ export const handleBoxClick = (index: number, setBoxes: Dispatch<SetStateAction<
 };
 // delete 버튼을 클릭했을 떄
 export const handleDeleteClick = (index: number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
-  setBoxes((prevBoxes) => {
-    const newBoxes = [...prevBoxes];
-    newBoxes.splice(index, 1); // 배열에서 해당 인덱스의 요소를 제거
-    return newBoxes;
-  });
+  if (confirm("정말 진행하시겠습니까??") == true){    //확인
+    setBoxes((prevBoxes) => {
+      const newBoxes = [...prevBoxes];
+      newBoxes.splice(index, 1); // 배열에서 해당 인덱스의 요소를 제거
+      return newBoxes;
+    });
+}else{   //취소
+    return false;
+}
 };
 
   // display none
