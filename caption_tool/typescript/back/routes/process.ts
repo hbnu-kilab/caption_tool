@@ -45,12 +45,10 @@ router.post('/', async (req: CustomRequest<UpdateRequestBody>, res: Response) =>
         ...originalJson,
         new_localizednarratives: json.new_localizednarratives,
         new_bounding_boxes: json.new_bounding_boxes,
-        new_keywords: json.new_keywords,
       };
     } else if (originalJsonPath === getOutputPath(jsonIndex)) {
       updatedJson['new_localizednarratives'] = json.new_localizednarratives;
       updatedJson['new_bounding_boxes'] = json.new_bounding_boxes;
-      updatedJson['new_keywords'] = json.new_keywords;
     }
 
     // 병합된 JSON 파일 저장

@@ -112,9 +112,6 @@ const ReUpload: React.FC = () => {
         let longCaptionString:string = data.new_localizednarratives// narrative caption 가져오기
         setlongCaption(longCaptionString) // longCaption에 narrative caption 넣기
 
-        let keywordsList:string[] = []
-        Object.keys(data['new_keywords']['keywords']).map((keyword: string, index: number)=>(keywordsList.push((keyword)))) // 키워드 리스트
-
         // json에 있는 바운딩 박스 가져오기
         data['new_bounding_boxes'].map((object:any)=>(
           boxes.push({
@@ -127,15 +124,6 @@ const ReUpload: React.FC = () => {
             relationship: object.relationship,
             captions: object.captions.map((item: any) => item.caption),
             errorCaptions: object.captions.map((item: any) => item.errorCaption),
-          })
-        ))
-
-        keywordsList.map((keyword: string, index: number)=>(
-          keywords.push({
-            instance: keyword, // 키워드
-            synset: data['new_keywords']['keywords'][keyword].synset, // 동의어
-            nearest_ancestor: data['new_keywords']['keywords'][keyword].nearest_ancestor, // 부모 노드 키워드
-            unique_beginner: data['new_keywords']['keywords'][keyword].unique_beginner, // unique beginner
           })
         ))
         console.log(boxes)
@@ -266,17 +254,6 @@ const ReUpload: React.FC = () => {
                 return captionAcc;
             }, [])
             })),
-            new_keywords: {
-                image_id: VGId,
-                keywords: keywords.reduce((acc: any, keyword) => {           
-                acc[keyword.instance] = {
-                    synset: keyword.synset,
-                    nearest_ancestor: keyword.nearest_ancestor,
-                    unique_beginner: keyword.unique_beginner
-                };
-                return acc;
-                }, {})
-          }
         };
 
         fetch('http://localhost:4000/process', {
@@ -383,10 +360,6 @@ const ReUpload: React.FC = () => {
       </div>
       {/* ===================================================================================== */}
       <div className={`${styles.innerDiv} ${styles.overflowY}`}>
-      <div>
-        {/* keywords */}
-        <KeywordList keywords={keywords} setKeywords={setKeywords} />
-      </div>
       {/* ===================================================================================== */}
         <div>
           <h1>Caption</h1>
