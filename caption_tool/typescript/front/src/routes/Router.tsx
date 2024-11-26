@@ -1,15 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Upload from '../Components/Upload';
-import List from '../Components/List';
+import ReUpload from '../Components/ReUpload';
+import Capture from '../Components/Capture';
 
 const AppRouter: React.FC = () => {
   return (
     <Router>
       <Routes>
         <Route path="/upload/:src" Component={Upload} />
-        <Route path="/list" Component={List} />
-        <Route path="/" Component={List} />
+        <Route path="/reupload/:src" Component={ReUpload} />
+        <Route path="/capture/:src" Component={Capture} />
+        <Route path="/" Component={ReUpload} />
       </Routes>
     </Router>
   );
