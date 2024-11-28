@@ -22,7 +22,7 @@ import { useParams } from 'react-router-dom';
 import CorrectCaption from './CoreCorrectCaption';
 import BoundBoxNavigation from './BoundBoxNavigation';
 import BoundBoxes from './CaptureBoundBoxes';
-import { Box } from './CoreJsonInterface';
+import { Box, Data } from './CoreJsonInterface';
 
 /**
  * @description
@@ -42,6 +42,8 @@ const Capturing: React.FC = () => {
   // => 리액트에서는 상태변수를 사용, 상태변수가 변할떄 랜더링 하도록 규정해둠
 
   const [boxes, setBoxes] = useState<Box[]>([]); // 박스 array 상태 변수
+  const [paragraphs, setParagraphs] = useState<any[]>([{"box_ids":[], "human_annotation":""}]); // 박스 array 상태 변수
+
   // 변경되거나 추가되는 box 요소에 대해 따로 보관하여 JSON 파일에 추가하는 목적의 상태 ( AddedState JSDoc 참고 )
 
   const [selectedBoxIndex, setSelectedBoxIndex] = useState<number>(0);
@@ -56,10 +58,7 @@ const Capturing: React.FC = () => {
   const [movingBoxIndex, setMovingBoxIndex] = useState<number | null>(null); // 현재 움직이고 있는 박스의 인덱스(boxes array 기준)
   const [resizeIndex, setResizeIndex] = useState<number | null>(null); // 현재 리사이징 되고 있는 박스의 인덱스(boxes array 기준)
 
-  const [selectedLongCaptionSegment, setSelectedLongCaptionSegment] = useState<boolean[]>([]); // caption으로 추가된 segment에 취소선 css를 부여하게 하기 위한 상태변수, 랜더링의 기준
-  const [selectedCocoCaptionSegment, setSelectedCocoCaptionSegment] = useState<boolean[]>([]); // caption으로 추가된 segment에 취소선 css를 부여하게 하기 위한 상태변수, 랜더링의 기준
-
-  const [longCaption, setlongCaption] = useState<string>('');
+  const [narratives, setNarratives] = useState<string>('');
 
   // 리액트에선 html 요소에 직접 접근을 막고, useRef나 react dom을 사용하여 접근하도록 함
   const imageRef = useRef<HTMLImageElement>(null); // 이미지 요소에 접근하도록 하는
@@ -86,12 +85,13 @@ const Capturing: React.FC = () => {
     fetch(`/json/coreJson/core_${imageId}.json`)
       .then(response => response.json())
       .then(data => { // 데이터를 받아오면
-        const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
-        console.log(data)
+        const recoginzedData:Data = data
+        const key: string = String(Object.keys(recoginzedData)[0]); // 데이터의 키 값(image_id)을 가져오기
+        console.log(recoginzedData)
         console.log({ key })
         setVGId(key)
-        setOriginalJson(data[key]); // 기존 JSON 데이터를 상태로 저장
-        setImageUrl(data[key].image_url); // 이미지 url 세팅하기
+        setOriginalJson(recoginzedData[key]); // 기존 JSON 데이터를 상태로 저장
+        setImageUrl(recoginzedData[key].image_url); // 이미지 url 세팅하기
 
         // json에 있는 바운딩 박스 가져오기
         console.log(`박스 가져오기 시작~`)
@@ -103,7 +103,7 @@ const Capturing: React.FC = () => {
             y: object.y,
             height: object.height,
             width: object.width,
-            captions: object.captions.map((item: any) => item.caption),
+            captions: object.captions,
             object_ids: object.object_ids,
             relationships: object.relationships,
           })
@@ -111,7 +111,6 @@ const Capturing: React.FC = () => {
         boxes.sort((a,b)=>Number(a.id.split("_")[1]) - Number(b.id.split("_")[1]))
         setBoxes(boxes.slice(0,8))
         console.log(`box: ${boxes}`)
-        console.log(`왜 안뜰까?`)
       })
       .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
   }, [imageId]);
@@ -122,12 +121,55 @@ const Capturing: React.FC = () => {
     fetch(`/json/coreJson/core_${imageId}.json`)
     .then(response => response.json())
     .then(data => { // 데이터를 받아오면
-      const key: string = String(Object.keys(data)[0]); // 데이터의 키 값(image_id)을 가져오기
+      const recoginzedData:Data = data
+      const key: string = String(Object.keys(recoginzedData)[0]); // 데이터의 키 값(image_id)을 가져오기
       setImageUrl(data[key].image_url); // 이미지 url 세팅하기
+      if (recoginzedData && recoginzedData[key] && recoginzedData[key]['relation_centric_regions'] && Array.isArray(recoginzedData[key]['relation_centric_regions']['human_annotations'])) {
+          
+        const human_annotations = recoginzedData[key].relation_centric_regions.human_annotations;
+
+        console.log('변경 전 human_annotations:', human_annotations);
+        console.log(human_annotations[0].box_ids);
+
+        human_annotations.forEach((elements) => {
+          if (elements['box_ids'] && Array.isArray(elements['box_ids'])) {
+            const boxIds: string[] = elements['box_ids']
+            let indices = boxIds.map((item: string) => parseInt(item.split("_")[1]));
+            elements['box_ids'] = indices.reduce((acc: any[], index: number) => {
+              acc.push(boxes[index]);
+              return acc;
+            }, []);
+            
+          } else {
+            console.warn("box_ids가 유효하지 않습니다:", elements['box_ids']);
+          }
+        });
+        console.log('변경된 human_annotations:', human_annotations);
+        setParagraphs(human_annotations)
+      } else {
+        console.error('human_annotations가 유효하지 않습니다.');
+      }
     })
     .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
-  }, [selectedLongCaptionSegment, selectedCocoCaptionSegment, longCaption]);
+  }, [paragraphs]);
 
+  // selectedSegment들이 변할때 재 실행 되는 useEffect
+  useEffect(() => {
+    console.log(2)
+    fetch(`/json/coreJson/core_${imageId}.json`)
+    .then(response => response.json())
+    .then(data => { // 데이터를 받아오면
+      const recoginzedData:Data = data
+      const key: string = String(Object.keys(recoginzedData)[0]); // 데이터의 키 값(image_id)을 가져오기
+      setImageUrl(data[key].image_url); // 이미지 url 세팅하기
+      setNarratives(recoginzedData[key].narratives)
+      const textarea = document.getElementById('longCaption') as HTMLInputElement;
+      if (textarea) {
+        textarea.value = narratives;
+      }
+    })
+    .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
+  }, [narratives]);
   // =============================================================================================
   // 헤더에 있는 버튼, 이전이나 다음 페이지로 이동 시 현재까지 변경된 사항들이 저장되도록 하기
   // prev 버튼 실행시 적용되는 함수
@@ -141,6 +183,7 @@ const Capturing: React.FC = () => {
 
     // 현재까지 변경된 사항들이 저장되도록 하기
   }
+  
   // const saveButton = (event:any) => {
   //       event.preventDefault(); 
   //       const updatedJson = {
@@ -216,16 +259,6 @@ const Capturing: React.FC = () => {
       movingBoxIndex,
       setMovingBoxIndex,
     );
-
-  const saveLongcaption = () => {
-    const textarea = document.getElementById('longCaption') as HTMLInputElement;
-    let innerlongCaption:string = String(textarea.value);
-    console.log("update longcaption")
-    setlongCaption(innerlongCaption)
-    if (textarea){
-      textarea.value = innerlongCaption
-    }
-  }
   // ==============================================================================================
   // return에서 html 렌더링
   return (
@@ -236,11 +269,11 @@ const Capturing: React.FC = () => {
         <button className={`${imageId !== "1"? styles.button : styles.deadButton}`} onClick={prevPage}>◀ prev</button>
         <div className={`${styles.headerControlSection}`}>
           {/* <button className={`${styles.saveButton}`} onClick={saveButton}>💾 save</button> */}
-          <button className={`${imageId !== "2186"? styles.button : styles.deadButton}`} onClick={nextPage}>next ▶</button>
+          <button className={`${styles.button}`} onClick={nextPage}>next ▶</button>
         </div>
       </div>
       {/* 바디 박스 */}
-      <div className={`${styles.innerDiv}`}>
+      <div className={`${styles.innerDiv}, ${styles.overflowY}`}>
         <h1>이미지 캡션 데이터 구축</h1>
         {/* 바운딩 박스 */}
         <BoundBoxes
@@ -256,6 +289,30 @@ const Capturing: React.FC = () => {
           selectedBoxIndex={selectedBoxIndex}
           onBoxSelect={handleBoxSelect}
         />
+        {paragraphs.map((item, index) => (
+        // 각 아이템에 대해 div 생성
+          <div key={index}>
+            <hr></hr>
+            <h3>Paragraph{index+1}</h3>
+            <BoundBoxes
+            boxes={item['box_ids']}
+            onMouseMove={onHandleMouseMove}
+            onMouseUp={onHandleMouseUp}
+            onMouseDown={e => handleMouseDown(e, imageRef, setStartX, setStartY, setIsDragging)}
+            onBoxMouseDown={e => index => handleBoxMouseDown(index, e, imageRef, setStartX, setStartY, setMovingBoxIndex)}
+            onResizeMouseDown={e => index => handleResizeMouseDown(index, e, setIsResizing, setResizeIndex) }
+            imageRef={imageRef}
+            imageUrl={imageUrl}
+            newBox={newBox}
+            selectedBoxIndex={selectedBoxIndex}
+            onBoxSelect={handleBoxSelect}
+          />
+          <div className={`${styles.fixedTextarea} ${styles.longCaption} ${styles.radius}`}>
+            <p>{item['human_annotation']}</p>
+          </div>
+          <br></br>
+        </div>
+      ))}
         {/* ===================================================================================== */}
         {/* floating box */}
         {/* <BoundBoxNavigation boxes={boxes} setBoxes={setBoxes} /> */}
@@ -263,24 +320,14 @@ const Capturing: React.FC = () => {
       {/* ===================================================================================== */}
       <div className={`${styles.innerDiv} ${styles.overflowY}`}>
       {/* ===================================================================================== */}
-        {/* <div>
+        <div>
           <h1>Caption</h1>
-          <h2>Long caption</h2>
+          <h2>Localized Narrative</h2>
           <h3>전반적인 이미지에 대한 설명</h3>
           {/* textaread의 readOnly  속성을 제거하면 내용을 고칠 수 있음~ */}
-          {/* <textarea id="longCaption" className={`${styles.fixedTextarea} ${styles.longCaption} ${styles.radius}`}></textarea>
-          <button onClick={() => saveLongcaption()} className={`${styles.longCaptionSave} ${styles.radius}`}>save</button>
+          <textarea id="longCaption" className={`${styles.fixedTextarea} ${styles.longCaption} ${styles.radius}`}></textarea>
+          {/* <button className={`${styles.longCaptionSave} ${styles.radius}`}>save</button> */}
         </div>
-        <div>
-          <h2>Segments of Long caption</h2>
-          <h3>segment를 클릭하여 알맞은 박스 인덱스를 입력해주세요</h3>
-          <table id="captionList"></table>
-        </div>
-        <div>
-          <h2>Segments of COCO captions</h2>
-          <h3>segment를 클릭하여 알맞은 박스 인덱스를 입력해주세요</h3>
-          <table id="cocoCaptionList"></table>
-        </div> */} 
         {/* correct caption */}
         <CorrectCaption
           boxes={boxes}

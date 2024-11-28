@@ -40,6 +40,13 @@ const uploadStyles = {
     position: 'relative',
     display:'none',
     width: '100%'
+  }),
+  humanAnnotation: (): CSSProperties => ({
+    position: 'relative',
+    width: '100%',
+    padding: '10px',
+    marginTop: '5px',
+    
   })
 };
 

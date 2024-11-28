@@ -73,7 +73,7 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes , selec
     <div className={styles.flexContainer}>
 
       <div className={styles.captionContainer}>
-        <h2>correct caption set</h2>
+        <h2>caption</h2>
         <h3>박스에 대한 <b>정확한 설명</b>을 입력해주세요.
           <br />텍스트를 클릭하면 수정할 수 있습니다. </h3>
         <br />
@@ -98,7 +98,45 @@ const CorrectCaption: React.FC<CorrectCaptionProps> = ({ boxes, setBoxes , selec
                       </td>
                       <td style={{ verticalAlign: "top" }}>
                         <span style = {{marginLeft: "5px"}}>
-                          {caption}
+                          {caption.caption}
+                        </span>
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.captionContainer}>
+        <h2>counterfactual caption</h2>
+        <h3>박스에 대한 <b>틀린 설명</b>을 입력해주세요.
+          <br />텍스트를 클릭하면 수정할 수 있습니다. </h3>
+        <br />
+        <br />
+        <br />
+        {boxes.length > 0 && selectedBox < boxes.length && (
+          <div className={`${styles.captionSet} ${styles.radius}`}>
+            <table>
+              <tbody>
+                <tr><br /><br /></tr>
+                {boxes[selectedBox].captions.map((caption, captionIndex) => (
+                  <React.Fragment key={`correctCaption${selectedBox}${captionIndex}`}>
+                    {(captionIndex > 0) && (captionIndex < boxes[selectedBox].captions.length) ? <tr><td colSpan={3}><hr></hr></td></tr> : ""}
+                    {(captionIndex > 0) && (captionIndex < boxes[selectedBox].captions.length) ? <tr><td colSpan={3}><p style={{marginTop:'40px'}}></p></td></tr> : ""}
+
+                    <tr className={styles.hovering}>
+                      <td style={{ verticalAlign: "top" }}>
+                        <button
+                          className={styles.movingBtn}>
+                          ({selectedBox}-{captionIndex})
+                        </button>
+                      </td>
+                      <td style={{ verticalAlign: "top" }}>
+                        <span style = {{marginLeft: "5px"}}>
+                          {caption.counterfactual_caption}
                         </span>
                       </td>
                     </tr>
