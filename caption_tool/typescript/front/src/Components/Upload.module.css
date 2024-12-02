@@ -166,6 +166,7 @@ h3 > b {
     display: flex;
     margin: 70px 20px 0px 20px;
     flex-direction: column;
+    width: fit-content;
 }
 .overflowY{
     max-width: 600px;

@@ -273,7 +273,7 @@ const Capturing: React.FC = () => {
         </div>
       </div>
       {/* 바디 박스 */}
-      <div className={`${styles.innerDiv}, ${styles.overflowY}`}>
+      <div>
         <h1>이미지 캡션 데이터 구축</h1>
         {/* 바운딩 박스 */}
         <BoundBoxes
