@@ -4,3 +4,5 @@ node_modules
 caption_tool/typescript/front/public/json/splitJson/split_json_*.json
 .idea
 .DS_Store
+caption_tool/typescript/python/core/test_keyword_dict.json
+caption_tool/typescript/python/core/train_keyword_dict.json
