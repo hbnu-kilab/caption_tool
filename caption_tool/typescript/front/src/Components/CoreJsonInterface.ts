@@ -16,25 +16,18 @@ export interface Box {
     nearest_ancestor: string; // 부모 노드 키워드
     unique_beginner: string; // unique beginner
   }
-
-
-  export interface HumanAnnotation {
-    human_annotation: string;
-    box_ids: string[];
-  }
   
   export interface RelationCentricRegion {
-    gpt_generate: string;
-    human_annotations: HumanAnnotation[];
+    human_annotation: string;
+    region_ids: string[];
   }
   
   export interface VGID {
-    image_url: string;
     regions: any[];
     narratives: string;
     keywords: any;
     unprocessed_keywords: any[];
-    relation_centric_regions: RelationCentricRegion;
+    relation_centric_regions: RelationCentricRegion[];
   }
 
   export interface Data {

@@ -39,6 +39,7 @@ const BoundBoxes: React.FC<BoundBoxesProps> = ({
   const { src: imageId } = useParams<{ src: string }>(); // url에서 src 파라미터를 받아옴, 현 페이지에서는 imageId라고 부를거임
 
   useEffect(() => {
+    console.log(imageUrl)
     const fetchImage = async () => {
       try {
         const response = await fetch(`http://localhost:4000/loadImage/proxy?url=${encodeURIComponent(imageUrl)}`);
@@ -49,7 +50,7 @@ const BoundBoxes: React.FC<BoundBoxesProps> = ({
       }
     };
     fetchImage()
-  }, [imageUrl,base64ImageUrl]); // imageUrl이 변경될 때마다 새로 이미지를 로드
+  }, [imageUrl, base64ImageUrl]); // imageUrl이 변경될 때마다 새로 이미지를 로드
 
   const saveAsImage = async () => {
     const element = document.getElementById('image-container'); // 이미지와 박스를 감싸는 div의 id
@@ -104,9 +105,9 @@ const BoundBoxes: React.FC<BoundBoxesProps> = ({
             }}
             onMouseDown={e => onBoxMouseDown(e)(index)}
           >
-            {/* {box.captions && (
+            {box.captions && (
               <div style={uploadStyles.caption()}>{index}</div>
-            )} */}
+            )}
             <div
               style={uploadStyles.captionResize()}
               onMouseDown={e => onResizeMouseDown(e)(index)}

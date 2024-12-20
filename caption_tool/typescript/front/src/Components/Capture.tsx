@@ -42,7 +42,7 @@ const Capturing: React.FC = () => {
   // => 리액트에서는 상태변수를 사용, 상태변수가 변할떄 랜더링 하도록 규정해둠
 
   const [boxes, setBoxes] = useState<Box[]>([]); // 박스 array 상태 변수
-  const [paragraphs, setParagraphs] = useState<any[]>([{"box_ids":[], "human_annotation":""}]); // 박스 array 상태 변수
+  const [paragraphs, setParagraphs] = useState<any[]>([{"region_ids":[], "human_annotation":""}]); // 박스 array 상태 변수
 
   // 변경되거나 추가되는 box 요소에 대해 따로 보관하여 JSON 파일에 추가하는 목적의 상태 ( AddedState JSDoc 참고 )
 
@@ -91,9 +91,10 @@ const Capturing: React.FC = () => {
         console.log({ key })
         setVGId(key)
         setOriginalJson(recoginzedData[key]); // 기존 JSON 데이터를 상태로 저장
-        setImageUrl(recoginzedData[key].image_url); // 이미지 url 세팅하기
+        setImageUrl(`https://cs.stanford.edu/people/rak248/VG_100K_2/${key}.jpg`); // 이미지 url 세팅하기      
 
         // json에 있는 바운딩 박스 가져오기
+        console.log(`박스 가져오기 시작~`, imageUrl)
         console.log(`박스 가져오기 시작~`)
         data[key]['regions'].map((object:any)=>(
           boxes.push({
@@ -123,25 +124,24 @@ const Capturing: React.FC = () => {
     .then(data => { // 데이터를 받아오면
       const recoginzedData:Data = data
       const key: string = String(Object.keys(recoginzedData)[0]); // 데이터의 키 값(image_id)을 가져오기
-      setImageUrl(data[key].image_url); // 이미지 url 세팅하기
-      if (recoginzedData && recoginzedData[key] && recoginzedData[key]['relation_centric_regions'] && Array.isArray(recoginzedData[key]['relation_centric_regions']['human_annotations'])) {
+      if (recoginzedData && recoginzedData[key] && recoginzedData[key]['relation_centric_regions'] && Array.isArray(recoginzedData[key]['relation_centric_regions'])) {
           
-        const human_annotations = recoginzedData[key].relation_centric_regions.human_annotations;
+        const human_annotations = recoginzedData[key].relation_centric_regions;
 
         console.log('변경 전 human_annotations:', human_annotations);
-        console.log(human_annotations[0].box_ids);
+        console.log(human_annotations[0].region_ids);
 
         human_annotations.forEach((elements) => {
-          if (elements['box_ids'] && Array.isArray(elements['box_ids'])) {
-            const boxIds: string[] = elements['box_ids']
-            let indices = boxIds.map((item: string) => parseInt(item.split("_")[1]));
-            elements['box_ids'] = indices.reduce((acc: any[], index: number) => {
+          if (elements['region_ids'] && Array.isArray(elements['region_ids'])) {
+            const regionIds: string[] = elements['region_ids']
+            let indices = regionIds.map((item: string) => parseInt(item.split("_")[1]));
+            elements['region_ids'] = indices.reduce((acc: any[], index: number) => {
               acc.push(boxes[index]);
               return acc;
             }, []);
             
           } else {
-            console.warn("box_ids가 유효하지 않습니다:", elements['box_ids']);
+            console.warn("region_ids 유효하지 않습니다:", elements['region_ids']);
           }
         });
         console.log('변경된 human_annotations:', human_annotations);
@@ -161,7 +161,6 @@ const Capturing: React.FC = () => {
     .then(data => { // 데이터를 받아오면
       const recoginzedData:Data = data
       const key: string = String(Object.keys(recoginzedData)[0]); // 데이터의 키 값(image_id)을 가져오기
-      setImageUrl(data[key].image_url); // 이미지 url 세팅하기
       setNarratives(recoginzedData[key].narratives)
       const textarea = document.getElementById('longCaption') as HTMLInputElement;
       if (textarea) {
@@ -295,7 +294,7 @@ const Capturing: React.FC = () => {
             <hr></hr>
             <h3>Paragraph{index+1}</h3>
             <BoundBoxes
-            boxes={item['box_ids']}
+            boxes={item['region_ids']}
             onMouseMove={onHandleMouseMove}
             onMouseUp={onHandleMouseUp}
             onMouseDown={e => handleMouseDown(e, imageRef, setStartX, setStartY, setIsDragging)}
