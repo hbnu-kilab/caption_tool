@@ -1,14 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-
-// 드래그 박스 객체를 만들기 위한 인터페이스
-interface Box {
-  x: number; // 좌측 상단 꼭지점 x 좌표
-  y: number; // 좌측 상단 꼭지점 y 좌표
-  height: number; // 박스 높이
-  width: number; // 박스 너비
-  captions: string[]; // correct caption
-  errorCaptions: string[][]; // error caption
-}
+import { Box } from './Upload';
 
 
 // segment를 클릭했을 때 실행
@@ -28,7 +19,6 @@ export const SegmentClick = (segment: string, segmentIndex:number, setBoxes: Dis
 
         setSelectedSegment((prevNumbers) => { // 이미 선택된 segment의 값은 true로 변환
           const newSelectedSegment = [...prevNumbers];
-          newSelectedSegment[segmentIndex] = true;
           console.log(segmentIndex, newSelectedSegment )
           return newSelectedSegment;
         })

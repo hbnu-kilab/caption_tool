@@ -1,14 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-
-// 드래그 박스 객체를 만들기 위한 인터페이스
-interface Box {
-    x: number; // 좌측 상단 꼭지점 x 좌표
-    y: number; // 좌측 상단 꼭지점 y 좌표
-    height: number; // 박스 높이
-    width: number; // 박스 너비
-    captions: string[]; // correct caption
-    errorCaptions: string[][]; // error caption
-  }
+import { Box } from './Upload';
 
 // correct caption의 add 버튼을 누르는 경우 실행됨, 추가용
 export const handleAddCaption = (BoxIndex: number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
@@ -49,6 +40,30 @@ export const handleCaptionClick = (BoxIndex: number, CaptionIndex: number, origi
     });
 
 }
+export const captionMoveClick = (BoxIndex: number, CaptionIndex: number, originCaption:string, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
+    const newBoxIndexStr = prompt(`Enter the box index where you want to arrive: now index >> ${BoxIndex}`, String(BoxIndex));
+  
+    // 입력값이 없거나 숫자가 아닐 경우
+    if (!newBoxIndexStr) return;
+    
+    const newBoxIndex = parseInt(newBoxIndexStr, 10);
+  
+    // 입력값이 유효한 숫자가 아닌 경우 또는 유효하지 않은 인덱스 범위일 경우
+    setBoxes((prevBoxes) => {
+      if (isNaN(newBoxIndex) || newBoxIndex < 0 || newBoxIndex >= prevBoxes.length) return prevBoxes; // 오류 방지
+  
+      const newBoxes = [...prevBoxes];
+  
+      // 기존 박스에서 캡션을 옮김
+      newBoxes[newBoxIndex].captions.push(originCaption);
+      newBoxes[newBoxIndex].errorCaptions.push(newBoxes[BoxIndex].errorCaptions[CaptionIndex]); // error caption에도 함께 반영
+      newBoxes[BoxIndex].captions.splice(CaptionIndex, 1);
+      newBoxes[BoxIndex].errorCaptions.splice(CaptionIndex, 1);
+
+      return newBoxes;
+    });
+
+  };
 
 // error caption을 누르는 경우 실행됨, 수정용
 export const handleErrorCaptionClick = (BoxIndex: number, CaptionIndex: number, ErrorCaptionIndex:number, originCaption:string, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
@@ -65,13 +80,16 @@ export const handleErrorCaptionClick = (BoxIndex: number, CaptionIndex: number, 
 
 // error caption을 누르는 경우 실행됨, 삭제용
 export const delCaptionClick = (BoxIndex: number, CaptionIndex: number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
-    setBoxes((prevBoxes) => {
-        const newBoxes = [...prevBoxes];
-        newBoxes[BoxIndex].captions.splice(CaptionIndex, 1);
-        newBoxes[BoxIndex].errorCaptions.splice(CaptionIndex, 1);
-        return newBoxes;
-    });
-
+    if (confirm("정말 진행하시겠습니까??") == true){    //확인
+        setBoxes((prevBoxes) => {
+            const newBoxes = [...prevBoxes];
+            newBoxes[BoxIndex].captions.splice(CaptionIndex, 1);
+            newBoxes[BoxIndex].errorCaptions.splice(CaptionIndex, 1);
+            return newBoxes;
+        });
+    }else{   //취소
+        return false;
+    }
 }
 
 // error caption을 누르는 경우 실행됨, 삭제용
