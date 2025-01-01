@@ -91,7 +91,8 @@ const Capturing: React.FC = () => {
         console.log({ key })
         setVGId(key)
         setOriginalJson(recoginzedData[key]); // 기존 JSON 데이터를 상태로 저장
-        setImageUrl(`https://cs.stanford.edu/people/rak248/VG_100K_2/${key}.jpg`); // 이미지 url 세팅하기      
+        setImageUrl(key); // 이미지 url 세팅하기      
+        console.log(`https://cs.stanford.edu/people/rak248/VG_100K/${key}.jpg`)
 
         // json에 있는 바운딩 박스 가져오기
         console.log(`박스 가져오기 시작~`, imageUrl)
@@ -127,10 +128,6 @@ const Capturing: React.FC = () => {
       if (recoginzedData && recoginzedData[key] && recoginzedData[key]['relation_centric_regions'] && Array.isArray(recoginzedData[key]['relation_centric_regions'])) {
           
         const human_annotations = recoginzedData[key].relation_centric_regions;
-
-        console.log('변경 전 human_annotations:', human_annotations);
-        console.log(human_annotations[0].region_ids);
-
         human_annotations.forEach((elements) => {
           if (elements['region_ids'] && Array.isArray(elements['region_ids'])) {
             const regionIds: string[] = elements['region_ids']
@@ -144,7 +141,6 @@ const Capturing: React.FC = () => {
             console.warn("region_ids 유효하지 않습니다:", elements['region_ids']);
           }
         });
-        console.log('변경된 human_annotations:', human_annotations);
         setParagraphs(human_annotations)
       } else {
         console.error('human_annotations가 유효하지 않습니다.');
