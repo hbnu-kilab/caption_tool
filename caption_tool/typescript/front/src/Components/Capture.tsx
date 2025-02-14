@@ -20,7 +20,7 @@ import ReactDOM from 'react-dom';
 // url parameter 접근을 위함
 import { useParams } from 'react-router-dom';
 import CorrectCaption from './CoreCorrectCaption';
-import BoundBoxNavigation from './BoundBoxNavigation';
+import BoundBoxNavigation from './CaptureBoundBoxNavigation';
 import BoundBoxes from './CaptureBoundBoxes';
 import { Box, Data } from './CoreJsonInterface';
 
@@ -111,7 +111,7 @@ const Capturing: React.FC = () => {
           })
         ))
         boxes.sort((a,b)=>Number(a.id.split("_")[1]) - Number(b.id.split("_")[1]))
-        setBoxes(boxes.slice(0,8))
+        setBoxes(boxes)
         console.log(`box: ${boxes}`)
       })
       .catch(error => console.error('데이터 가져오기 중 문제가 발생했습니다:', error));
@@ -310,7 +310,7 @@ const Capturing: React.FC = () => {
       ))}
         {/* ===================================================================================== */}
         {/* floating box */}
-        {/* <BoundBoxNavigation boxes={boxes} setBoxes={setBoxes} /> */}
+        <BoundBoxNavigation boxes={boxes} setBoxes={setBoxes} />
       </div>
       {/* ===================================================================================== */}
       <div className={`${styles.innerDiv} ${styles.overflowY}`}>

@@ -14,30 +14,21 @@ export const handleBoxClick = (index: number, setBoxes: Dispatch<SetStateAction<
     return newBoxes; // box array return
   });
 };
-// delete 버튼을 클릭했을 떄
-export const handleDeleteClick = (index: number, setBoxes: Dispatch<SetStateAction<Box[]>>) => {
-  if (confirm("정말 진행하시겠습니까??") == true){    //확인
-    setBoxes((prevBoxes) => {
-      const newBoxes = [...prevBoxes];
-      newBoxes.splice(index, 1); // 배열에서 해당 인덱스의 요소를 제거
-      return newBoxes;
-    });
-}else{   //취소
-    return false;
-}
-};
 
   // display none
-export  const handleBoxDisplay = (index:number) => {
-    let box = document.getElementById(`box${index}`);
-    let displayBtn = document.getElementById(`displayBtn${index}`);
+export  const handleBoxDisplay = (box_id:string) => {
+    let box = document.getElementById(`${box_id}`);
+    let displayBtn = document.getElementById(`displayBtn_${box_id}`);
     if (box !== null &&displayBtn !== null){
+
       console.log(box.style.display)
+
       if (box.style.display === 'none'){
         box.style.display = 'inline'
         displayBtn.style.backgroundColor = 'rgb(29, 31, 37)'
         displayBtn.innerHTML = "on"
       }
+
       else {
         box.style.display = 'none'
         displayBtn.style.backgroundColor = 'rgb(172, 176, 185)'
